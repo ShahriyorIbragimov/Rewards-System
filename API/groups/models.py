@@ -22,9 +22,11 @@ class Groups(TimestampMixin, Base):
     title: Mapped[str] = mapped_column(String(100), unique=True)
     description: Mapped[str] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
-    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    by_teacher: Mapped[uuid.UUID] = mapped_column(ForeignKey("teacher_profiles.id"))
+    by_admin: Mapped[uuid.UUID] = mapped_column(ForeignKey("admin_profiles.id"))
 
-    user: Mapped["Users"] = relationship(back_populates="groups") # type: ignore
+    teacher_profiles: Mapped["TeacherProfiles"] = relationship(back_populates="groups") # type: ignore
+    admin_profiles: Mapped["AdminProfiles"] = relationship(back_populates="groups") # type: ignore
     group_memberships: Mapped[list["GroupMemberships"]] = relationship(back_populates="group")
     rewards: Mapped[list["Rewards"]] = relationship(back_populates="group") # type: ignore
 

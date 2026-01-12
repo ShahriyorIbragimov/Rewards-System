@@ -4,6 +4,17 @@ from database import Base, engine
 import uvicorn
 from router import router
 
+from users.models import Users
+from admin.models import AdminProfiles
+from groups.models import Groups, GroupMemberships
+from notifications.models import Notifications
+from orders.models import Orders, OrderItems
+from products.models import Products
+from rewards.models import Rewards
+from students.models import StudentProfiles
+from teachers.models import TeacherProfiles
+from transactions.models import Transactions
+
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API")

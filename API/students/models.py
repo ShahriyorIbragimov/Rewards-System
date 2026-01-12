@@ -20,4 +20,7 @@ class StudentProfiles(TimestampMixin, Base):
     bio: Mapped[str] = mapped_column(Text, nullable=True)
 
     user: Mapped["Users"] = relationship(back_populates="student_profiles") # type: ignore
+    rewards: Mapped[list["Rewards"]] = relationship(back_populates="student_profiles") # type: ignore
+    orders: Mapped[list["Orders"]] = relationship(back_populates="student_profiles") # type: ignore
+    transactions: Mapped[list["Transactions"]] = relationship(back_populates="student_profiles") # type: ignore
     

@@ -22,7 +22,7 @@ class Orders(TimestampMixin, Base):
         primary_key=True, 
         default=uuid.uuid4
     )
-    student_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    student_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("student_profiles.id"))
     total_coins: Mapped[int] = mapped_column()
     status: Mapped[Status] = mapped_column(
         SQLEnum(Status, name="status_enum"),
@@ -36,7 +36,7 @@ class Orders(TimestampMixin, Base):
     )
 
     order_items: Mapped[list["OrderItems"]] = relationship(back_populates="order") # type: ignore
-    user: Mapped["Users"] = relationship(back_populates="orders") # type: ignore
+    student_profiles: Mapped["StudentProfiles"] = relationship(back_populates="orders") # type: ignore
 
 class OrderItems(TimestampMixin, Base):
     __tablename__ = "order_items"

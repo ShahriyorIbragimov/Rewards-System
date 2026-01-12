@@ -30,22 +30,8 @@ class Users(TimestampMixin, Base):
     )
     is_active: Mapped[bool] = mapped_column(default=True)
 
-    groups: Mapped[list["Groups"]] = relationship(back_populates="user") # type: ignore
     group_memberships: Mapped[list["GroupMemberships"]] = relationship(back_populates="user") # type: ignore
+    admin_profiles: Mapped[list["AdminProfiles"]] = relationship(back_populates="user") # type: ignore
+    teacher_profiles: Mapped[list["TeacherProfiles"]] = relationship(back_populates="user") # type: ignore
     student_profiles: Mapped[list["StudentProfiles"]] = relationship(back_populates="user") # type: ignore
-    products: Mapped[list["Products"]] = relationship(back_populates="user") # type: ignore
-    rewards: Mapped[list["Rewards"]] = relationship(back_populates="user") # type: ignore
-    orders: Mapped[list["Orders"]] = relationship(back_populates="user") # type: ignore
     notifications: Mapped[list["Notifications"]] = relationship(back_populates="user") # type: ignore
-    student_transactions: Mapped[list["Transactions"]] = relationship( # type: ignore
-        "Transactions",
-        foreign_keys="[Transactions.student_id]",
-        back_populates="student",
-    )
-
-    created_transactions: Mapped[list["Transactions"]] = relationship( # type: ignore
-        "Transactions",
-        foreign_keys="[Transactions.created_by]",
-        back_populates="creator",
-    )
-    

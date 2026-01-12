@@ -17,4 +17,7 @@ class TeacherProfiles(TimestampMixin, Base):
     bio: Mapped[str] = mapped_column(Text, nullable=True)
 
     user: Mapped["Users"] = relationship(back_populates="teacher_profiles") # type: ignore
+    groups: Mapped[list["Groups"]] = relationship(back_populates="teacher_profiles") # type: ignore
+    issued_rewards: Mapped[list["Rewards"]] = relationship(back_populates="teacher_profiles") # type: ignore
+    transactions: Mapped[list["Transactions"]] = relationship(back_populates="teacher_profiles") # type: ignore
     

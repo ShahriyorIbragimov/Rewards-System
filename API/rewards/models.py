@@ -12,20 +12,15 @@ class Rewards(TimestampMixin, Base):
         primary_key=True, 
         default=uuid.uuid4
     )
-    teacher_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
-    student_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    by_teacher: Mapped[uuid.UUID] = mapped_column(ForeignKey("teacher_profiles.id"))
+    by_admin: Mapped[uuid.UUID] = mapped_column(ForeignKey("admin_profiles.id"))
+    student_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("student_profiles.id"))
     group_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("groups.id"))
+    
     amount: Mapped[int] = mapped_column()
     reason: Mapped[str] = mapped_column(Text)
 
-    teacher: Mapped["Users"] = relationship( # type: ignore
-        "Users",
-        foreign_keys=[teacher_id],
-        back_populates="teacher_rewards"
-    )
-    student: Mapped["Users"] = relationship( # type: ignore
-        "Users",
-        foreign_keys=[student_id],
-        back_populates="student_rewards"
-    )
+    student_profiles: Mapped["StudentProfiles"] = relationship(back_populates="rewards") # type: ignore
+    teacher_profiles: Mapped["TeacherProfiles"] = relationship(back_populates="issued_rewards") # type: ignore
+    admin_profiles: Mapped["AdminProfiles"] = relationship(back_populates="issued_rewards") # type: ignore
     group: Mapped["Groups"] = relationship(back_populates="rewards") # type: ignore
