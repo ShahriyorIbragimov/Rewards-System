@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 import uuid
 from enum import Enum
-from mixins import TimestampMixin
+from mixins import TimestampMixin, CreatedByMixin
 
 class TransactionType(str, Enum):
     reward = "reward"
@@ -11,7 +11,7 @@ class TransactionType(str, Enum):
     refund = "refund"
     admin_adjustment = "admin_adjustment"
 
-class Transactions(TimestampMixin, Base):
+class Transactions(TimestampMixin, CreatedByMixin, Base):
     __tablename__ = "transactions"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -29,9 +29,5 @@ class Transactions(TimestampMixin, Base):
     balance_after: Mapped[int] = mapped_column()
     reference_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
     description: Mapped[str] = mapped_column(Text)
-    by_teacher: Mapped[uuid.UUID] = mapped_column(ForeignKey("teacher_profiles.id"))
-    by_admin: Mapped[uuid.UUID] = mapped_column(ForeignKey("admin_profiles.id"))
 
     student_profiles: Mapped["StudentProfiles"] = relationship(back_populates="transactions") # type: ignore
-    teacher_profiles: Mapped["TeacherProfiles"] = relationship(back_populates="transactions") # type: ignore
-    admin_profiles: Mapped["AdminProfiles"] = relationship(back_populates="transactions") # type: ignore
