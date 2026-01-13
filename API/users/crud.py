@@ -5,6 +5,15 @@ from fastapi import HTTPException, status
 from dependencies import hash_password, verify_password
 import uuid
 
+def isAdmin(user: m.Users):
+    if user.role == m.Role.admin:
+        return True
+    
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="You are not allowed to perform this action."
+    )
+
 def create_user(db: Session, data: s.UserCreate):
     try:
         user = db.query(m.Users).filter(
@@ -114,6 +123,21 @@ def delete_user(db: Session, id: uuid.UUID):
         user = get_user(db=db, id=id)
         db.delete(user)
         db.commit()
+        return user
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
+def deactivate_user(db: Session, id: uuid.UUID):
+    try:
+        user = get_user(db=db, id=id)
+        user.is_active = False
+        db.commit()
+        db.refresh(user)
         return user
     except HTTPException:
         raise

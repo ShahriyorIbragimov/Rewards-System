@@ -1,4 +1,5 @@
 import jwt
+import uuid
 from datetime import datetime, timedelta
 from config import settings
 from fastapi.security import OAuth2PasswordBearer
@@ -28,9 +29,15 @@ def get_current_user(
 ) -> Users:
     try:
         payload = decode_token(token)
-        user_id: str = payload.get("sub")
-
-        if user_id is None:
+        user_id_str = payload.get("sub")
+        if user_id_str is None or not isinstance(user_id_str, str):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, 
+                detail="Invalid token"
+            )
+        try:
+            user_id = uuid.UUID(user_id_str)
+        except ValueError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED, 
                 detail="Invalid token"
