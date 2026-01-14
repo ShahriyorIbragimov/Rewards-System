@@ -4,13 +4,13 @@ from dependencies import getDB, verify_password
 from . import schemas as s
 from . import crud as c
 from users.models import Users
-from users.schemas import UserCreate, UserOut, UserUpdate, UserPasswordUpdate
+from users import schemas as us
 from users import crud as uc
 import uuid
 
 router = APIRouter()
 
-@router.get("/me", response_model=UserOut)
+@router.get("/me", response_model=us.UserOut)
 def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     user = uc.get_user(db=db, id=current_user.id)
     return user
@@ -38,8 +38,8 @@ def login(data: s.UserLogin, db: Session = Depends(getDB)):
         "token_type": "bearer"
     }
 
-@router.post("/register", response_model=UserOut)
-def register(data: UserCreate, db: Session = Depends(getDB)):
+@router.post("/register", response_model=us.UserOut)
+def register(data: us.UserCreate, db: Session = Depends(getDB)):
     user = db.query(Users).filter(Users.phone_number == data.phone_number).first()
 
     if user:
@@ -52,8 +52,8 @@ def register(data: UserCreate, db: Session = Depends(getDB)):
 
     return user
 
-@router.put("/update", response_model=UserUpdate)
-def update(data: UserUpdate, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
+@router.put("/update", response_model=us.UserUpdate)
+def update(data: us.UserUpdate, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     if data.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -63,7 +63,7 @@ def update(data: UserUpdate, db: Session = Depends(getDB), current_user: Users =
     return user
 
 @router.put("/update-password")
-def update_password(data: UserPasswordUpdate, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
+def update_password(data: us.UserPasswordUpdate, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     if data.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -75,7 +75,7 @@ def update_password(data: UserPasswordUpdate, db: Session = Depends(getDB), curr
         detail="Password updated successfully!"
     )
 
-@router.put(f"/deactivate/{id}", response_model=s.UserOut)
+@router.put(f"/deactivate/{id}", response_model=us.UserOut)
 def deactivate_user(id: uuid.UUID, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     if id == current_user.id:
         user = uc.deactivate_user(db=db, id=id)
