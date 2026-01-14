@@ -28,3 +28,4 @@ dist-ssr
 __pycache__
 .tanstack
 routeTree.gen.ts
+database.db
