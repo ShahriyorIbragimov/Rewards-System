@@ -7,7 +7,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
 import {
   SidebarTrigger,
   useSidebar,
@@ -52,12 +51,6 @@ export function Header() {
     <header className="flex h-16 shrink-0 items-center gap-2 border-b justify-between px-3">
       <div className="flex items-center gap-2">
         {!isMobile && <SidebarTrigger />}
-        {!isMobile && (
-          <Separator
-            orientation="vertical"
-            className="mr-2 h-4"
-          />
-        )}
         <Breadcrumb>
           <BreadcrumbList>
             {createdPathData.length === 0 ? null : filteredPathData.map((_, index) => {

@@ -1,5 +1,6 @@
 fastapi
 sqlalchemy
+aiogram
 pydantic_settings
 uvicorn
 passlib

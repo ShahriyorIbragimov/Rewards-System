@@ -6,7 +6,8 @@ import {
 } from "@/components/ui/sidebar"
 import { Header } from '@/components/header'
 import Navigation from '@/components/navigation'
-import { Bell, Home, Store, Users } from "lucide-react"
+import { ShoppingBag, Home, Store, Users, User } from "lucide-react"
+import { ThemeProvider } from "@/components/theme-provider"
 
 const navItems = {
   navMain: [
@@ -16,40 +17,47 @@ const navItems = {
       url: "/main"
     },
     {
-      title: "Groups",
-      icon: Users,
-      url: "/groups"
-    },
-    {
       title: "Marketplace",
       icon: Store,
       url: "/marketplace"
     },
     {
-      title: "",
-      icon: Bell,
-      url: "/notifications"
+      title: "Items",
+      icon: ShoppingBag,
+      url: "/items"
     },
+    {
+      title: "Groups",
+      icon: Users,
+      url: "/groups"
+    },
+    {
+      title: "Profile",
+      icon: User,
+      url: "/profile"
+    }
   ],
 }
 
 const RootLayout = () => (
-  <SidebarProvider
-    style={
-      {
-        "--sidebar-width": "19rem",
-      } as React.CSSProperties
-    }
-  >
-    <AppSidebar navItems={navItems} />
-    <SidebarInset>
-      <Header />
-      <div className='p-4 pl-2'>
-        <Outlet />
-      </div>
-      <Navigation navItems={navItems} />
-    </SidebarInset>
-  </SidebarProvider>
+  <ThemeProvider>
+    <SidebarProvider
+      style={
+        {
+          "--sidebar-width": "19rem",
+        } as React.CSSProperties
+      }
+    >
+      <AppSidebar navItems={navItems} />
+      <SidebarInset>
+        <Header />
+        <div className='p-4 pl-2'>
+          <Outlet />
+        </div>
+        <Navigation navItems={navItems} />
+      </SidebarInset>
+    </SidebarProvider>
+  </ThemeProvider>
 )
 
 export const Route = createRootRoute({ component: RootLayout })
