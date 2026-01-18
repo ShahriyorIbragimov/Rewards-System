@@ -35,25 +35,41 @@ function RouteComponent() {
 
   useEffect(() => {
     console.log('Checking for Telegram...');
+    console.log('Window object keys:', Object.keys(window).filter(k => k.includes('Telegram') || k.includes('telegram')));
     // @ts-ignore
-    if (window.Telegram?.WebApp) {
-      console.log('Telegram WebApp found');
+    console.log('Window.Telegram exists:', !!window.Telegram);
+    
+    // Wait a bit for Telegram to inject the SDK
+    const timer = setTimeout(() => {
       // @ts-ignore
-      const tg = window.Telegram.WebApp;
+      if (window.Telegram?.WebApp) {
+        console.log('Telegram WebApp found');
+        // @ts-ignore
+        const tg = window.Telegram.WebApp;
 
-      tg.ready();
+        tg.ready();
 
-      const user = tg.initDataUnsafe?.user;
-      
-      console.log('User data:', user);
-      console.log('Full initDataUnsafe:', tg.initDataUnsafe);
+        const user = tg.initDataUnsafe?.user;
+        
+        console.log('User data:', user);
+        console.log('Full initDataUnsafe:', tg.initDataUnsafe);
 
-      setTelegramUser(user);
-    } else {
-      // @ts-ignore
-      console.log('Telegram WebApp not found. Window.Telegram:', window.Telegram);
-      console.log('Make sure you are opening this app from a Telegram bot, not directly in a browser.');
-    }
+        setTelegramUser(user);
+      } else {
+        // @ts-ignore
+        console.log('Telegram WebApp NOT found');
+        // @ts-ignore
+        console.log('Window.Telegram:', window.Telegram);
+        console.log('⚠️ ERROR: Telegram SDK not loaded. This app must be opened from a Telegram bot button.');
+        console.log('Make sure:');
+        console.log('1. You configured the Web App URL in BotFather (bot settings → web app)');
+        console.log('2. You are using the PRODUCTION URL (HTTPS)');
+        console.log('3. You are opening the app through the Telegram bot button, NOT directly in browser');
+        console.log('Current URL:', window.location.href);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (
