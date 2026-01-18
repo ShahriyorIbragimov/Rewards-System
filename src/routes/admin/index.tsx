@@ -113,6 +113,7 @@ function RouteComponent() {
         // For Android, also try accessing user data if available in window object
         // @ts-ignore
         if (window.TelegramUser) {
+          // @ts-ignore
           console.log('TelegramUser found in window:', window.TelegramUser);
           // @ts-ignore
           setTelegramUser(window.TelegramUser);
