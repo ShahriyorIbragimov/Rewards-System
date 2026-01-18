@@ -74,7 +74,7 @@ export function Header() {
             <SettingsIcon />
           </Button>
         </Link>
-        <ModeToggle className="" />
+        <ModeToggle />
       </div>
     </header>
   )

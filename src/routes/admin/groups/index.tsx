@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 
-export const Route = createFileRoute('/groups/')({
+export const Route = createFileRoute('/admin/groups/')({
     component: RouteComponent,
 })
 
@@ -20,13 +20,14 @@ function RouteComponent() {
     useEffect(
         () => {
             async function get() {
-                fetch("")
-                .then()
+                const response = await fetch("/api/groups/list-all")
+                const data = await response.json()
+                setGroups(data)
             }
 
             get()
         },
-        [groups]
+        []
     )
 
     return (
@@ -39,27 +40,14 @@ function RouteComponent() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-                <GroupCard
-                    title="Mathematics"
-                    description="Algebra, geometry and problem solving"
-                    teacher="Mr. Anderson"
-                    isActive
-                    lastReward="+50 coins · 2 days ago"
-                />
-                <GroupCard
-                    title="Physics"
-                    description="Mechanics and basic thermodynamics"
-                    teacher="Ms. Clark"
-                    isActive
-                    lastReward="+30 coins · 5 days ago"
-                />
-                <GroupCard
-                    title="History"
-                    description="World history overview"
-                    teacher="Mr. Lewis"
-                    isActive={false}
-                    lastReward="No recent rewards"
-                />
+                {groups.map((item, index) => (
+                    <GroupCard key={index}
+                        title={item.title}
+                        description={item.description.length === 0 ? "No description" : item.description}
+                        teacher="Shahriyor"
+                        isActive={item.is_active}
+                    />
+                ))}
             </div>
         </div>
     )
@@ -70,13 +58,11 @@ const GroupCard = ({
     description,
     teacher,
     isActive,
-    lastReward,
 }: {
     title: string
     description?: string
     teacher: string
     isActive: boolean
-    lastReward: string
 }) => (
     <Card className="hover:shadow-md transition">
         <CardContent className="p-4 space-y-3">
@@ -91,23 +77,18 @@ const GroupCard = ({
                 </div>
                 <span
                     className={`text-xs px-2 py-1 rounded-full ${isActive
-                            ? "bg-green-100 text-green-700"
-                            : "bg-gray-100 text-gray-500"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-500"
                         }`}
                 >
                     {isActive ? "Active" : "Inactive"}
                 </span>
             </div>
 
-            {/* Meta */}
             <div className="text-sm text-muted-foreground">
                 Teacher: <span className="text-foreground">{teacher}</span>
             </div>
 
-            {/* Last Reward */}
-            <div className="text-sm">{lastReward}</div>
-
-            {/* Actions */}
             <div className="flex gap-2">
                 <Button size="sm" variant="secondary" className="flex-1">
                     View Group

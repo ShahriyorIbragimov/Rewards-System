@@ -11,10 +11,10 @@ from auth.crud import get_current_user
 router = APIRouter()
 
 @router.get("/list-all", response_model=List[s.UserOut])
-def list_all_users(db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):
-    if isAdmin(current_user):
-        users = c.get_users(db)
-        return users
+def list_all_users(db: Session = Depends(getDB)):
+    # if isAdmin(current_user):
+    users = c.get_users(db)
+    return users
 
 @router.get(f"/list/{id}", response_model=s.UserOut)
 def list_one_user(id: uuid.UUID, db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):

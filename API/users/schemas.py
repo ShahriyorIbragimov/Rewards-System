@@ -9,7 +9,6 @@ class UserCreate(BaseModel):
     first_name: str
     last_name: str
     role: Role
-    is_active: bool
 
 class UserOut(BaseModel):
     id: uuid.UUID

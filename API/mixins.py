@@ -42,8 +42,13 @@ class CreatedByType(TypeDecorator):
                     CreatedBy(**value)
                 except ValidationError as e:
                     raise ValueError(f"Invalid created_by structure: {e}")
+                # Convert UUID to string in dict
+                if 'user_id' in value and isinstance(value['user_id'], uuid.UUID):
+                    value['user_id'] = str(value['user_id'])
             elif isinstance(value, CreatedBy):
-                value = value.dict()
+                value_dict = value.model_dump()
+                value_dict['user_id'] = str(value.user_id)
+                value = value_dict
             else:
                 raise ValueError("created_by must be a dict or CreatedBy instance")
         return value

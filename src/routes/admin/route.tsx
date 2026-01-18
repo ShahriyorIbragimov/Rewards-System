@@ -1,0 +1,64 @@
+import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { AppSidebar } from "@/components/app-sidebar"
+import {
+    SidebarInset,
+    SidebarProvider
+} from "@/components/ui/sidebar"
+import { Header } from '@/components/header'
+import Navigation from '@/components/navigation'
+import { ShoppingBag, Home, Store, Users, User } from "lucide-react"
+
+export const Route = createFileRoute('/admin')({
+    component: Layout,
+})
+
+const navItems = {
+    navMain: [
+        {
+            title: "Home",
+            icon: Home,
+            url: "/admin/main"
+        },
+        {
+            title: "Marketplace",
+            icon: Store,
+            url: "/admin/marketplace"
+        },
+        {
+            title: "Items",
+            icon: ShoppingBag,
+            url: "/admin/items"
+        },
+        {
+            title: "Groups",
+            icon: Users,
+            url: "/admin/groups"
+        },
+        {
+            title: "Profile",
+            icon: User,
+            url: "/admin/profile"
+        }
+    ],
+}
+
+function Layout() {
+    return (
+        <SidebarProvider
+            style={
+                {
+                    "--sidebar-width": "19rem",
+                } as React.CSSProperties
+            }
+        >
+            <AppSidebar navItems={navItems} />
+            <SidebarInset>
+                <Header />
+                <div className='p-4 pl-2'>
+                    <Outlet />
+                </div>
+                <Navigation navItems={navItems} />
+            </SidebarInset>
+        </SidebarProvider>
+    )
+}
