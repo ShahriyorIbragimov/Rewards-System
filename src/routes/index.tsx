@@ -1,14 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { useNavigate } from '@tanstack/react-router'
+import { createFileRoute, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-  component: RouteComponent,
+  beforeLoad: async () => {
+    throw redirect({ to: '/admin' })
+  },
 })
-
-function RouteComponent() {
-  const navigate = useNavigate();
-
-  navigate({to: "/admin"})
-
-  return <></>
-}
