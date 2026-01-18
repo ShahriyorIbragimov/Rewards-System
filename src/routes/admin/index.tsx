@@ -68,14 +68,33 @@ function RouteComponent() {
         // @ts-ignore
         proxy.postEvent('web_app_ready', {});
         
-        // Try to get initData from URL parameters
+        // Log all URL parameters
         const params = new URLSearchParams(window.location.hash.substring(1));
-        console.log('Init data from URL:', params.get('tgWebAppData'));
+        console.log('All URL params:');
+        params.forEach((value, key) => {
+          console.log(`  ${key}: ${value}`);
+        });
         
-        // Parse the initData
-        const initData = params.get('tgWebAppData');
-        if (initData) {
-          const decoded = decodeURIComponent(initData);
+        // Try different ways to get user data on Android
+        // Method 1: Check if data is passed via postEvent callback
+        // @ts-ignore
+        if (window.TelegramWebviewProxy.receiveEvent) {
+          // @ts-ignore
+          window.TelegramWebviewProxy.receiveEvent('web_app_data_received', (data: any) => {
+            console.log('Received web_app_data:', data);
+            if (data && data.user) {
+              setTelegramUser(data.user);
+            }
+          });
+        }
+        
+        // Method 2: Try to parse from URL query string (some Android versions use query instead of hash)
+        const queryParams = new URLSearchParams(window.location.search);
+        const urlInitData = queryParams.get('tgWebAppData') || params.get('tgWebAppData');
+        console.log('Init data from URL:', urlInitData);
+        
+        if (urlInitData) {
+          const decoded = decodeURIComponent(urlInitData);
           console.log('Decoded init data:', decoded);
           
           // Parse user data from initData
@@ -89,6 +108,14 @@ function RouteComponent() {
               console.error('Failed to parse user data:', e);
             }
           }
+        }
+        
+        // For Android, also try accessing user data if available in window object
+        // @ts-ignore
+        if (window.TelegramUser) {
+          console.log('TelegramUser found in window:', window.TelegramUser);
+          // @ts-ignore
+          setTelegramUser(window.TelegramUser);
         }
       } else {
         console.log('❌ Telegram WebApp NOT found');
