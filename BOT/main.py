@@ -1,31 +1,71 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import WebAppInfo
+from aiogram.types import WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 import asyncio
 import os
+import logging
+
+# Setup logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-DP = Dispatcher()
-
-
-@DP.message(Command("start"))
-async def command_start_handler(message: types.Message) -> None:
-    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    keyboard.add(
-        types.KeyboardButton(
-            text="🎓 Open Student App",
-            web_app=WebAppInfo(url="https://chipper-zuccutto-0a2279.netlify.app/")
-        )
-    )
-    await message.answer("Welcome!", reply_markup=keyboard)
-
-
+# Initialize bot and dispatcher
 async def main() -> None:
-    BOT = Bot(token=os.getenv("API"))
-    await DP.start_polling(BOT)
+    token = os.getenv("API")
+    if not token:
+        raise ValueError("API token not found in environment variables")
+    
+    bot = Bot(token=token)
+    storage = MemoryStorage()
+    dp = Dispatcher(storage=storage)
+
+    # Define handlers
+    @dp.message(Command("start"))
+    async def command_start_handler(message: types.Message) -> None:
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(
+                        text="🎓 Open Admin App",
+                        web_app=WebAppInfo(url="https://rewards-system.netlify.app/admin")
+                    )
+                ],
+                [
+                    KeyboardButton(
+                        text="👨‍🎓 Open Student App",
+                        web_app=WebAppInfo(url="https://rewards-system.netlify.app/student")
+                    )
+                ],
+                [
+                    KeyboardButton(
+                        text="👨‍🏫 Open Teacher App",
+                        web_app=WebAppInfo(url="https://rewards-system.netlify.app/teacher")
+                    )
+                ]
+            ],
+            resize_keyboard=True
+        )
+        await message.answer("Welcome! Choose your app:", reply_markup=keyboard)
+
+    @dp.message(Command("help"))
+    async def command_help_handler(message: types.Message) -> None:
+        await message.answer(
+            "Available commands:\n"
+            "/start - Show available apps\n"
+            "/help - Show this help message"
+        )
+
+    try:
+        logger.info("Bot started polling...")
+        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    finally:
+        await bot.session.close()
 
 
 if __name__ == "__main__":
     asyncio.run(main())
+

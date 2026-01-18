@@ -38,12 +38,14 @@ function RouteComponent() {
     console.log('Window object keys:', Object.keys(window).filter(k => k.includes('Telegram') || k.includes('telegram')));
     // @ts-ignore
     console.log('Window.Telegram exists:', !!window.Telegram);
+    // @ts-ignore
+    console.log('Window.TelegramWebviewProxy exists:', !!window.TelegramWebviewProxy);
     
     // Wait a bit for Telegram to inject the SDK
     const timer = setTimeout(() => {
       // @ts-ignore
       if (window.Telegram?.WebApp) {
-        console.log('Telegram WebApp found');
+        console.log('✅ Telegram WebApp found (iOS/Desktop)');
         // @ts-ignore
         const tg = window.Telegram.WebApp;
 
@@ -55,16 +57,46 @@ function RouteComponent() {
         console.log('Full initDataUnsafe:', tg.initDataUnsafe);
 
         setTelegramUser(user);
-      } else {
+      } 
+      // @ts-ignore
+      else if (window.TelegramWebviewProxy) {
+        console.log('✅ Telegram WebviewProxy found (Android)');
         // @ts-ignore
-        console.log('Telegram WebApp NOT found');
+        const proxy = window.TelegramWebviewProxy;
+        
+        // On Android, we need to use postEvent to get data
+        // @ts-ignore
+        proxy.postEvent('web_app_ready', {});
+        
+        // Try to get initData from URL parameters
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        console.log('Init data from URL:', params.get('tgWebAppData'));
+        
+        // Parse the initData
+        const initData = params.get('tgWebAppData');
+        if (initData) {
+          const decoded = decodeURIComponent(initData);
+          console.log('Decoded init data:', decoded);
+          
+          // Parse user data from initData
+          const match = decoded.match(/user=({[^}]+})/);
+          if (match) {
+            try {
+              const userData = JSON.parse(decodeURIComponent(match[1]));
+              console.log('Extracted user data:', userData);
+              setTelegramUser(userData);
+            } catch (e) {
+              console.error('Failed to parse user data:', e);
+            }
+          }
+        }
+      } else {
+        console.log('❌ Telegram WebApp NOT found');
         // @ts-ignore
         console.log('Window.Telegram:', window.Telegram);
-        console.log('⚠️ ERROR: Telegram SDK not loaded. This app must be opened from a Telegram bot button.');
-        console.log('Make sure:');
-        console.log('1. You configured the Web App URL in BotFather (bot settings → web app)');
-        console.log('2. You are using the PRODUCTION URL (HTTPS)');
-        console.log('3. You are opening the app through the Telegram bot button, NOT directly in browser');
+        // @ts-ignore
+        console.log('Window.TelegramWebviewProxy:', window.TelegramWebviewProxy);
+        console.log('⚠️ ERROR: Telegram SDK not loaded.');
         console.log('Current URL:', window.location.href);
       }
     }, 1000);
