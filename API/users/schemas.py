@@ -18,7 +18,6 @@ class UserOut(BaseModel):
     first_name: str
     last_name: str
     role: Role
-    is_active: bool
     
     class Config:
         from_attributes = True
@@ -27,7 +26,6 @@ class UserUpdate(BaseModel):
     id: uuid.UUID
     first_name: str
     last_name: str
-    is_active: bool
 
 class UserPasswordUpdate(BaseModel):
     id: uuid.UUID

@@ -5,15 +5,6 @@ from fastapi import HTTPException, status
 from dependencies import hash_password, verify_password
 import uuid
 
-def isAdmin(user: m.Users):
-    if user.role == m.Role.admin:
-        return True
-    
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="You are not allowed to perform this action."
-    )
-
 def create_user(db: Session, data: s.UserCreate):
     try:
         user = db.query(m.Users).filter(

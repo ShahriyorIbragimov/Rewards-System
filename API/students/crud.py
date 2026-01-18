@@ -4,22 +4,22 @@ from . import models as m
 from fastapi import HTTPException, status
 import uuid
 
-def create_group(db: Session, data: s.GroupCreate):
+def create_student(db: Session, data: s.StudentCreate):
     try:
-        group = db.query(m.Groups).filter(
-            m.Groups.title == data.title
+        student = db.query(m.StudentProfiles).filter(
+            m.StudentProfiles.user_id == data.user_id
         ).first()
-        if group:
+        if student:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="Group with this title already exists.",
+                detail="Student profile with this user already exists.",
             )
-        group_data = data.model_dump()
-        group = m.Groups(**group_data)
-        db.add(group)
+        student_data = data.model_dump()
+        student = m.Users(**student_data)
+        db.add(student)
         db.commit()
-        db.refresh(group)
-        return group
+        db.refresh(student)
+        return student
     except HTTPException:
         raise
     except Exception as e:
@@ -28,28 +28,28 @@ def create_group(db: Session, data: s.GroupCreate):
             detail=str(e),
         )
 
-def update_group(db: Session, data: s.GroupUpdate):
+def update_student(db: Session, data: s.StudentUpdate):
     try:
-        group = db.query(m.Groups).filter(m.Groups.id == data.id).first()
-        if not group:
+        student = db.query(m.StudentProfiles).filter(m.StudentProfiles.id == data.id).first()
+        if not student:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Group is not found."
+                detail="Student profile is not found."
             )
         for key, value in data.model_dump().items():
-            setattr(group, key, value)
+            setattr(student, key, value)
         db.commit()
-        db.refresh(group)
-        return group
+        db.refresh(student)
+        return student
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
 
-def get_groups(db: Session):
+def get_students(db: Session):
     try:
-        return db.query(m.Groups).all()
+        return db.query(m.StudentProfiles).all()
     except HTTPException:
         raise
     except Exception as e:
@@ -58,9 +58,9 @@ def get_groups(db: Session):
             detail=str(e),
         )
     
-def get_active_groups(db: Session):
+def get_active_students(db: Session):
     try:
-        return db.query(m.Groups).filter(m.Groups.is_active == True).all()
+        return db.query(m.StudentProfiles).filter(m.StudentProfiles.is_active == True).all()
     except HTTPException:
         raise
     except Exception as e:
@@ -69,9 +69,9 @@ def get_active_groups(db: Session):
             detail=str(e),
         )
     
-def get_inactive_groups(db: Session):
+def get_inactive_students(db: Session):
     try:
-        return db.query(m.Groups).filter(m.Groups.is_active == False).all()
+        return db.query(m.StudentProfiles).filter(m.StudentProfiles.is_active == False).all()
     except HTTPException:
         raise
     except Exception as e:
@@ -80,15 +80,15 @@ def get_inactive_groups(db: Session):
             detail=str(e),
         )
 
-def get_group(db: Session, id: uuid.UUID):
+def get_student(db: Session, id: uuid.UUID):
     try:
-        group = db.query(m.Groups).filter(m.Groups.id == id).first()
-        if not group:
+        student = db.query(m.StudentProfiles).filter(m.StudentProfiles.id == id).first()
+        if not student:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Group is not found."
+                detail="User is not found."
             )
-        return group
+        return student
     except HTTPException:
         raise
     except Exception as e:
@@ -97,12 +97,12 @@ def get_group(db: Session, id: uuid.UUID):
             detail=str(e),
         )
 
-def delete_group(db: Session, id: uuid.UUID):
+def delete_student(db: Session, id: uuid.UUID):
     try:
-        group = get_group(db=db, id=id)
-        db.delete(group)
+        student = get_student(db=db, id=id)
+        db.delete(student)
         db.commit()
-        return group
+        return student
     except HTTPException:
         raise
     except Exception as e:
@@ -111,13 +111,13 @@ def delete_group(db: Session, id: uuid.UUID):
             detail=str(e),
         )
     
-def deactivate_group(db: Session, id: uuid.UUID):
+def deactivate_student(db: Session, id: uuid.UUID):
     try:
-        group = get_group(db=db, id=id)
-        group.is_active = False
+        student = get_student(db=db, id=id)
+        student.is_active = False
         db.commit()
-        db.refresh(group)
-        return group
+        db.refresh(student)
+        return student
     except HTTPException:
         raise
     except Exception as e:

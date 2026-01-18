@@ -15,6 +15,7 @@ class TeacherProfiles(TimestampMixin, Base):
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
     avatar_url: Mapped[str] = mapped_column(String(500), nullable=True)
     bio: Mapped[str] = mapped_column(Text, nullable=True)
+    is_active: Mapped[bool] = mapped_column(default=True)
 
     user: Mapped["Users"] = relationship(back_populates="teacher_profiles") # type: ignore
     

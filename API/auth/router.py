@@ -6,7 +6,6 @@ from . import crud as c
 from users.models import Users
 from users import schemas as us
 from users import crud as uc
-import uuid
 
 router = APIRouter()
 
@@ -75,8 +74,7 @@ def update_password(data: us.UserPasswordUpdate, db: Session = Depends(getDB), c
         detail="Password updated successfully!"
     )
 
-@router.put(f"/deactivate/{id}", response_model=us.UserOut)
-def deactivate_user(id: uuid.UUID, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
-    if id == current_user.id:
-        user = uc.deactivate_user(db=db, id=id)
-        return user
+@router.put(f"/deactivate", response_model=us.UserOut)
+def deactivate_user(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
+    user = uc.deactivate_user(db=db, id=current_user.id)
+    return user

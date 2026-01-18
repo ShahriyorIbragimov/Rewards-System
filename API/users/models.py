@@ -28,7 +28,6 @@ class Users(TimestampMixin, Base):
         default=Role.student,
         nullable=False
     )
-    is_active: Mapped[bool] = mapped_column(default=True)
 
     group_memberships: Mapped[list["GroupMemberships"]] = relationship(back_populates="user") # type: ignore
     admin_profiles: Mapped[list["AdminProfiles"]] = relationship(back_populates="user") # type: ignore

@@ -1,12 +1,34 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { useState, useEffect } from 'react'
 
 export const Route = createFileRoute('/groups/')({
     component: RouteComponent,
 })
 
 function RouteComponent() {
+    type group = {
+        id: string,
+        title: string,
+        description: string,
+        is_active: boolean
+    }
+
+    const [groups, setGroups] = useState<group[]>([])
+
+    useEffect(
+        () => {
+            async function get() {
+                fetch("")
+                .then()
+            }
+
+            get()
+        },
+        [groups]
+    )
+
     return (
         <div className="space-y-4">
             <div>
@@ -16,7 +38,6 @@ function RouteComponent() {
                 </p>
             </div>
 
-            {/* Groups List */}
             <div className="grid gap-4 md:grid-cols-2">
                 <GroupCard
                     title="Mathematics"
