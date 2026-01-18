@@ -18,7 +18,9 @@ function RouteComponent() {
   const [telegramUser, setTelegramUser] = useState<TelegramUser>()
 
   useEffect(() => {
+    // @ts-ignore
     if (window.Telegram?.WebApp) {
+      // @ts-ignore
       const tg = window.Telegram.WebApp;
 
       tg.ready();
