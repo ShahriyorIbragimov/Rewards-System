@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import WebAppInfo, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 import asyncio
@@ -26,30 +26,34 @@ async def main() -> None:
     # Define handlers
     @dp.message(Command("start"))
     async def command_start_handler(message: types.Message) -> None:
-        keyboard = ReplyKeyboardMarkup(
-            keyboard=[
+        # Create inline buttons with web_app
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
                 [
-                    KeyboardButton(
-                        text="🎓 Open Admin App",
+                    InlineKeyboardButton(
+                        text="🎓 Admin App",
                         web_app=WebAppInfo(url="https://rewards-system.netlify.app/admin")
                     )
                 ],
                 [
-                    KeyboardButton(
-                        text="👨‍🎓 Open Student App",
+                    InlineKeyboardButton(
+                        text="👨‍🎓 Student App",
                         web_app=WebAppInfo(url="https://rewards-system.netlify.app/student")
                     )
                 ],
                 [
-                    KeyboardButton(
-                        text="👨‍🏫 Open Teacher App",
+                    InlineKeyboardButton(
+                        text="👨‍🏫 Teacher App",
                         web_app=WebAppInfo(url="https://rewards-system.netlify.app/teacher")
                     )
                 ]
-            ],
-            resize_keyboard=True
+            ]
         )
-        await message.answer("Welcome! Choose your app:", reply_markup=keyboard)
+        await message.answer(
+            "Welcome to Rewards System! 🎉\n\n"
+            "Choose your role to continue:",
+            reply_markup=keyboard
+        )
 
     @dp.message(Command("help"))
     async def command_help_handler(message: types.Message) -> None:
@@ -68,4 +72,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 

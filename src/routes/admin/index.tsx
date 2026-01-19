@@ -7,18 +7,21 @@ export const Route = createFileRoute('/admin/')({
 
 type TelegramUser = {
   id: number,
-  is_bot: string,
+  is_bot?: boolean,
   first_name: string,
-  last_name: string,
-  username: string,
-  language_code: string
+  last_name?: string,
+  username?: string,
+  language_code?: string,
+  photo_url?: string,
+  is_premium?: boolean
 }
 
 function RouteComponent() {
-  const [telegramUser, setTelegramUser] = useState<TelegramUser>()
+  const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [showDebug, setShowDebug] = useState(false)
   const [logs, setLogs] = useState<string[]>([])
-  
+
   useEffect(() => {
     // Capture console logs
     const originalLog = console.log;
@@ -34,101 +37,62 @@ function RouteComponent() {
   }, []);
 
   useEffect(() => {
-    console.log('Checking for Telegram...');
-    console.log('Window object keys:', Object.keys(window).filter(k => k.includes('Telegram') || k.includes('telegram')));
-    // @ts-ignore
-    console.log('Window.Telegram exists:', !!window.Telegram);
-    // @ts-ignore
-    console.log('Window.TelegramWebviewProxy exists:', !!window.TelegramWebviewProxy);
+    console.log('🚀 Initializing Telegram Mini App...');
+    console.log('Current URL:', window.location.href);
     
-    const timer = setTimeout(() => {
-      // @ts-ignore
-      if (window.Telegram?.WebApp) {
-        console.log('✅ Telegram WebApp found (iOS/Desktop)');
-        // @ts-ignore
-        const tg = window.Telegram.WebApp;
+    // @ts-ignore
+    if (!window.Telegram) {
+      const script = document.createElement('script');
+      script.src = 'https://telegram.org/js/telegram-web-app.js';
+      script.onload = () => {
+        console.log('✅ Telegram WebApp script loaded');
+        initializeTelegramApp();
+      };
+      script.onerror = () => {
+        console.error('❌ Failed to load Telegram WebApp script');
+        setError('Failed to load Telegram WebApp');
+      };
+      document.head.appendChild(script);
+    } else {
+      initializeTelegramApp();
+    }
 
-        tg.ready();
-
-        const user = tg.initDataUnsafe?.user;
-        
-        console.log('User data:', user);
-        console.log('Full initDataUnsafe:', tg.initDataUnsafe);
-
-        setTelegramUser(user);
-      } 
-      // @ts-ignore
-      else if (window.TelegramWebviewProxy) {
-        console.log('✅ Telegram WebviewProxy found (Android)');
+    function initializeTelegramApp() {
+      try {
         // @ts-ignore
-        const proxy = window.TelegramWebviewProxy;
-        
-        // On Android, we need to use postEvent to get data
-        // @ts-ignore
-        proxy.postEvent('web_app_ready', {});
-        
-        // Log all URL parameters
-        const params = new URLSearchParams(window.location.hash.substring(1));
-        console.log('All URL params:');
-        params.forEach((value, key) => {
-          console.log(`  ${key}: ${value}`);
-        });
-        
-        // Try different ways to get user data on Android
-        // Method 1: Check if data is passed via postEvent callback
-        // @ts-ignore
-        if (window.TelegramWebviewProxy.receiveEvent) {
+        if (window.Telegram?.WebApp) {
+          console.log('✅ Telegram.WebApp found');
           // @ts-ignore
-          window.TelegramWebviewProxy.receiveEvent('web_app_data_received', (data: any) => {
-            console.log('Received web_app_data:', data);
-            if (data && data.user) {
-              setTelegramUser(data.user);
-            }
-          });
-        }
-        
-        // Method 2: Try to parse from URL query string (some Android versions use query instead of hash)
-        const queryParams = new URLSearchParams(window.location.search);
-        const urlInitData = queryParams.get('tgWebAppData') || params.get('tgWebAppData');
-        console.log('Init data from URL:', urlInitData);
-        
-        if (urlInitData) {
-          const decoded = decodeURIComponent(urlInitData);
-          console.log('Decoded init data:', decoded);
+          const webApp = window.Telegram.WebApp;
+
+          // Call ready to inform Telegram we're ready
+          webApp.ready();
+          console.log('Called webApp.ready()');
+
+          // Get user data from initDataUnsafe
+          const user = webApp.initDataUnsafe?.user;
           
-          // Parse user data from initData
-          const match = decoded.match(/user=({[^}]+})/);
-          if (match) {
-            try {
-              const userData = JSON.parse(decodeURIComponent(match[1]));
-              console.log('Extracted user data:', userData);
-              setTelegramUser(userData);
-            } catch (e) {
-              console.error('Failed to parse user data:', e);
-            }
-          }
-        }
-        
-        // For Android, also try accessing user data if available in window object
-        // @ts-ignore
-        if (window.TelegramUser) {
-          // @ts-ignore
-          console.log('TelegramUser found in window:', window.TelegramUser);
-          // @ts-ignore
-          setTelegramUser(window.TelegramUser);
-        }
-      } else {
-        console.log('❌ Telegram WebApp NOT found');
-        // @ts-ignore
-        console.log('Window.Telegram:', window.Telegram);
-        // @ts-ignore
-        console.log('Window.TelegramWebviewProxy:', window.TelegramWebviewProxy);
-        console.log('⚠️ ERROR: Telegram SDK not loaded.');
-        console.log('Current URL:', window.location.href);
-      }
-    }, 1000);
+          console.log('User from initDataUnsafe:', user);
+          console.log('Full initDataUnsafe:', webApp.initDataUnsafe);
 
-    return () => clearTimeout(timer);
+          if (user && user.id) {
+            console.log('✅ User data found:', user);
+            setTelegramUser(user);
+          } else {
+            console.warn('⚠️ No user data found in initDataUnsafe');
+            setError('No user data received from Telegram. Make sure you opened this app via the inline button.');
+          }
+        } else {
+          console.error('❌ Telegram.WebApp not found');
+          // @ts-ignore
+          console.log('window.Telegram:', window.Telegram);
+          setError('Telegram WebApp SDK not available. Please open this app through the Telegram bot.');
+        }
+      } catch (err) {
+        console.error('Error initializing Telegram app:', err);
+        setError(`Initialization error: ${String(err)}`);
+      }
+    }
   }, []);
 
   return (
@@ -139,7 +103,7 @@ function RouteComponent() {
           onClick={() => setShowDebug(!showDebug)}
           className="px-3 py-1 text-sm bg-slate-600 text-white rounded hover:bg-slate-700"
         >
-          {showDebug ? 'Hide' : 'Show'} Debug Console
+          {showDebug ? 'Hide' : 'Show'} Debug
         </button>
       </div>
 
@@ -152,6 +116,13 @@ function RouteComponent() {
               logs.map((log, i) => <div key={i}>{log}</div>)
             )}
           </div>
+        </div>
+      )}
+
+      {error && (
+        <div className="border border-red-500 rounded-lg p-4 bg-red-50">
+          <p className="text-red-700 text-sm font-semibold">⚠️ Error</p>
+          <p className="text-red-600 text-sm mt-2">{error}</p>
         </div>
       )}
       
