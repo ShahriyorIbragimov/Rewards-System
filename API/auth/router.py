@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from dependencies import getDB, verify_password
+from dependencies import getDB, verify_password, verify_telegram_auth
 from . import schemas as s
 from . import crud as c
 from users.models import Users
@@ -13,6 +13,20 @@ router = APIRouter()
 def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     user = uc.get_user(db=db, id=current_user.id)
     return user
+
+@router.post("/auth/telegram")
+async def telegram_login(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
+    pass
+    # if not verify_telegram_auth(user.copy()):
+    #     raise HTTPException(status_code=403, detail="Invalid Telegram login")
+    
+
+
+    # return {
+    #     "id": user["id"],
+    #     "username": user.get("username"),
+    #     "first_name": user.get("first_name"),
+    # }
 
 @router.post("/login", response_model=s.TokenPayload)
 def login(data: s.UserLogin, db: Session = Depends(getDB)):

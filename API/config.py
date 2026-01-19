@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str = ""
     ALGORITHM: str = "HS256"
     EXPIRE_MINUTES: int = 30
+    API: str
 
     class Config:
         env_file = ".env"
