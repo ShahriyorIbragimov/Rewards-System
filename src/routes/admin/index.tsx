@@ -57,6 +57,10 @@ function RouteComponent() {
               <span className="font-medium text-sm">Language:</span>
               <p className="text-sm text-muted-foreground">{telegramUser.language_code || 'N/A'}</p>
             </div>
+            <div>
+              <span className="font-medium text-sm">Is Bot:</span>
+              <p className="text-sm text-muted-foreground">{telegramUser.is_bot || 'N/A'}</p>
+            </div>
           </div>
         </div>
       ) : (
