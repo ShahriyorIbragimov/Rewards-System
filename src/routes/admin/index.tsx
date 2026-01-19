@@ -23,9 +23,9 @@ function RouteComponent() {
     // @ts-ignore
     if (window.Telegram?.WebApp) {
       // @ts-ignore
-      const webApp = window.Telegram.WebAppInitData;
+      const webApp = window.Telegram.WebApp;
       webApp.ready();
-      setTelegramUser(webApp.user || null);
+      setTelegramUser(webApp.initDataUnsafe?.user || null);
     }
   }, []);
 
