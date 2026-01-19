@@ -18,7 +18,7 @@ function RouteComponent() {
   const [telegramUser, setTelegramUser] = useState<TelegramUser>()
   const [showDebug, setShowDebug] = useState(false)
   const [logs, setLogs] = useState<string[]>([])
-
+  
   useEffect(() => {
     // Capture console logs
     const originalLog = console.log;
@@ -41,7 +41,6 @@ function RouteComponent() {
     // @ts-ignore
     console.log('Window.TelegramWebviewProxy exists:', !!window.TelegramWebviewProxy);
     
-    // Wait a bit for Telegram to inject the SDK
     const timer = setTimeout(() => {
       // @ts-ignore
       if (window.Telegram?.WebApp) {
