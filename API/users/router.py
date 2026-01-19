@@ -11,10 +11,10 @@ from auth.crud import get_current_user
 router = APIRouter()
 
 @router.get("/list-all", response_model=List[s.UserOut])
-def list_all_users(db: Session = Depends(getDB)):
-    # if isAdmin(current_user):
-    users = c.get_users(db)
-    return users
+def list_all_users(db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):
+    if isAdmin(current_user):
+        users = c.get_users(db)
+        return users
 
 @router.get(f"/list/{id}", response_model=s.UserOut)
 def list_one_user(id: uuid.UUID, db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):
@@ -32,18 +32,6 @@ def create_user(data: s.UserCreate, db: Session = Depends(getDB), current_user: 
 def update_user(data: s.UserUpdate, db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):
     if isAdmin(current_user):
         user = c.update_user(db, data)
-        return user
-
-@router.put("/update-password", response_model=s.UserOut)
-def update_user_password(data: s.UserPasswordUpdate, db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):
-    if isAdmin(current_user):
-        user = c.update_user_password(db, data)
-        return user
-
-@router.put(f"/deactivate/{id}", response_model=s.UserOut)
-def deactivate_user(id: uuid.UUID, db: Session = Depends(getDB), current_user: m.Users = Depends(get_current_user)):
-    if isAdmin(current_user):
-        user = c.deactivate_user(db=db, id=id)
         return user
 
 @router.delete(f"/delete/{id}", response_model=s.UserOut)

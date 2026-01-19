@@ -32,21 +32,21 @@ async def main() -> None:
                 [
                     InlineKeyboardButton(
                         text="🎓 Admin App",
-                        web_app=WebAppInfo(url="https://rewards-system.netlify.app/admin")
+                        web_app=WebAppInfo(url="https://rewards-system-seven.vercel.app/admin")
                     )
                 ],
-                [
-                    InlineKeyboardButton(
-                        text="👨‍🎓 Student App",
-                        web_app=WebAppInfo(url="https://rewards-system.netlify.app/student")
-                    )
-                ],
-                [
-                    InlineKeyboardButton(
-                        text="👨‍🏫 Teacher App",
-                        web_app=WebAppInfo(url="https://rewards-system.netlify.app/teacher")
-                    )
-                ]
+                # [
+                #     InlineKeyboardButton(
+                #         text="👨‍🎓 Student App",
+                #         web_app=WebAppInfo(url="https://rewards-system.netlify.app/student")
+                #     )
+                # ],
+                # [
+                #     InlineKeyboardButton(
+                #         text="👨‍🏫 Teacher App",
+                #         web_app=WebAppInfo(url="https://rewards-system.netlify.app/teacher")
+                #     )
+                # ]
             ]
         )
         await message.answer(

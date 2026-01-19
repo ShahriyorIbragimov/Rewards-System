@@ -19,16 +19,17 @@ class Users(TimestampMixin, Base):
         default=uuid.uuid4
     )
     telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True)
-    phone_number: Mapped[str] = mapped_column(String(255))
-    password_hash: Mapped[str] = mapped_column(String(255))
     first_name: Mapped[str] = mapped_column(String(100))
     last_name: Mapped[str] = mapped_column(String(100))
+    username: Mapped[str] = mapped_column(String(150))
+    language_code: Mapped[str] = mapped_column(String(3))
+    photo_url: Mapped[str] = mapped_column()
     role: Mapped[Role] = mapped_column(
         SQLEnum(Role, name="role_enum"),
         default=Role.student,
         nullable=False
     )
-
+    
     group_memberships: Mapped[list["GroupMemberships"]] = relationship(back_populates="user") # type: ignore
     admin_profiles: Mapped[list["AdminProfiles"]] = relationship(back_populates="user") # type: ignore
     teacher_profiles: Mapped[list["TeacherProfiles"]] = relationship(back_populates="user") # type: ignore

@@ -14,56 +14,33 @@ def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current
     user = uc.get_user(db=db, id=current_user.id)
     return user
 
-@router.post("/auth/telegram")
-async def telegram_login(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
-    pass
-    # if not verify_telegram_auth(user.copy()):
-    #     raise HTTPException(status_code=403, detail="Invalid Telegram login")
-    
-
-
-    # return {
-    #     "id": user["id"],
-    #     "username": user.get("username"),
-    #     "first_name": user.get("first_name"),
-    # }
-
 @router.post("/login", response_model=s.TokenPayload)
-def login(data: s.UserLogin, db: Session = Depends(getDB)):
-    user = db.query(Users).filter(Users.phone_number == data.phone_number).first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User with this phone number is not found."
-        )
-    
-    if not verify_password(data.password, user.password_hash):
+def login(data: us.UserCreate, db: Session = Depends(getDB)):
+    if not verify_telegram_auth(data):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="User password is incorrect."
+            detail="Invalid Telegram credentials."
         )
     
-    token = c.encode_token({"sub": str(user.id)})
+    user = db.query(Users).filter(Users.telegram_id == data.telegram_id).first()
 
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    if not user:
+        user = uc.create_user(db=db, data=data)
 
-@router.post("/register", response_model=us.UserOut)
-def register(data: us.UserCreate, db: Session = Depends(getDB)):
-    user = db.query(Users).filter(Users.phone_number == data.phone_number).first()
+        token = c.encode_token({"sub": str(user.id)})
 
+        return {
+            "access_token": token,
+            "token_type": "bearer"
+        }
+    
     if user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="User with this phone number already exists."
-        )
-    
-    user = uc.create_user(db=db, data=data)
+        token = c.encode_token({"sub": str(user.id)})
 
-    return user
+        return {
+            "access_token": token,
+            "token_type": "bearer"
+        }
 
 @router.put("/update", response_model=us.UserUpdate)
 def update(data: us.UserUpdate, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
@@ -73,22 +50,4 @@ def update(data: us.UserUpdate, db: Session = Depends(getDB), current_user: User
             detail="You are not allowed to perform this action.."
         )
     user = uc.update_user(db, data)
-    return user
-
-@router.put("/update-password")
-def update_password(data: us.UserPasswordUpdate, db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
-    if data.id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not allowed to perform this action.."
-        )
-    uc.update_user_password(db=db, data=data)
-    raise HTTPException(
-        status_code=status.HTTP_200_OK,
-        detail="Password updated successfully!"
-    )
-
-@router.put(f"/deactivate", response_model=us.UserOut)
-def deactivate_user(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
-    user = uc.deactivate_user(db=db, id=current_user.id)
     return user

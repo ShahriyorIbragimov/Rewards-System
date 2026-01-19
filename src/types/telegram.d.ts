@@ -21,7 +21,6 @@ declare global {
                         username?: string;
                         language_code?: string;
                         photo_url?: string;
-                        is_premium?: boolean;
                     };
                 };
             };
