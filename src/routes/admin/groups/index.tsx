@@ -20,7 +20,7 @@ function RouteComponent() {
     useEffect(
         () => {
             async function get() {
-                const response = await fetch("/api/groups/list-all")
+                const response = await fetch("http://localhost:8000/api/groups/list-all")
                 const data = await response.json()
                 setGroups(data)
             }

@@ -13,7 +13,6 @@ type TelegramUser = {
   username?: string,
   language_code?: string,
   photo_url?: string,
-  is_premium?: boolean
 }
 
 function RouteComponent() {
@@ -56,10 +55,6 @@ function RouteComponent() {
             <div>
               <span className="font-medium text-sm">Language:</span>
               <p className="text-sm text-muted-foreground">{telegramUser.language_code || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">Is premium:</span>
-              <p className="text-sm text-muted-foreground">{telegramUser.is_premium || 'N/A'}</p>
             </div>
             <div>
               <span className="font-medium text-sm">Photo Url:</span>
