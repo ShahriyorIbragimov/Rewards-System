@@ -1,12 +1,13 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useAuth } from '@/context/AuthContext'
+import { Button } from '@/components/ui/button'
 
 export const Route = createFileRoute('/admin/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { user, loading } = useAuth()
+  const { user, loading, logout } = useAuth()
 
   if (loading) {
     return (
@@ -20,7 +21,11 @@ function RouteComponent() {
 
   return (
     <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold">Student Dashboard</h1>
+
+      <Button onClick={() => logout()}>
+        Log Out
+      </Button>
 
       {user ? (
         <>

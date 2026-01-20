@@ -23,7 +23,7 @@ class Users(TimestampMixin, Base):
     last_name: Mapped[str] = mapped_column(String(100))
     username: Mapped[str] = mapped_column(String(150))
     language_code: Mapped[str] = mapped_column(String(3))
-    allows_to_write_pm: Mapped[bool] = mapped_column()
+    allows_write_to_pm: Mapped[bool] = mapped_column()
     photo_url: Mapped[str] = mapped_column()
     role: Mapped[Role] = mapped_column(
         SQLEnum(Role, name="role_enum"),

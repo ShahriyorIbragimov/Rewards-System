@@ -8,7 +8,7 @@ import { Header } from '@/components/header'
 import Navigation from '@/components/navigation'
 import { ShoppingBag, Home, Store, Users, User } from "lucide-react"
 
-export const Route = createFileRoute('/admin')({
+export const Route = createFileRoute('/student')({
     component: Layout,
 })
 

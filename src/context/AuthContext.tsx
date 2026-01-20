@@ -30,7 +30,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [error] = useState<string | null>(null);
 
   useEffect(() => {
-    // Load from localStorage on mount
     const storedToken = localStorage.getItem('authToken');
     const storedUser = localStorage.getItem('user');
 

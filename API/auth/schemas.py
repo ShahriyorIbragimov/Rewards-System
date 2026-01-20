@@ -17,7 +17,6 @@ class TelegramUser(BaseModel):
     language_code: Optional[str] = None
     allows_write_to_pm: Optional[bool] = None
     photo_url: Optional[str] = None
-    role: Optional[str]
 
 class TelegramInitData(BaseModel):
     query_id: str
@@ -25,3 +24,7 @@ class TelegramInitData(BaseModel):
     auth_date: str
     signature: str
     hash: str
+
+
+class InitDataPayload(BaseModel):
+    init_data: str

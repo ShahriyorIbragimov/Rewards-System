@@ -13,6 +13,7 @@ type TelegramUser = {
   last_name?: string
   username?: string
   language_code?: string
+  allows_write_to_pm?: boolean
   photo_url?: string
 }
 
@@ -51,7 +52,6 @@ function RouteComponent() {
           return
         }
 
-        // Get the raw init data string from Telegram
         const initDataString = webApp.initData
         
         const loginResponse = await fetch('/api/auth/login', {
@@ -67,7 +67,6 @@ function RouteComponent() {
         const { access_token } = await loginResponse.json()
         localStorage.setItem('authToken', access_token)
 
-        // Get user data
         const meResponse = await fetch('/api/auth/me', {
           headers: { Authorization: `Bearer ${access_token}` },
         })

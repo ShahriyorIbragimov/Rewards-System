@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useState, useEffect } from 'react'
 
-export const Route = createFileRoute('/admin/groups/')({
+export const Route = createFileRoute('/student/groups/')({
     component: RouteComponent,
 })
 
@@ -20,7 +20,7 @@ function RouteComponent() {
     useEffect(
         () => {
             async function get() {
-                const response = await fetch("http://localhost:8000/api/groups/list-all")
+                const response = await fetch("/api/auth/groups/list-active")
                 const data = await response.json()
                 setGroups(data)
             }

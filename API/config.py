@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     EXPIRE_MINUTES: int = 30
     API: str
+    ADMIN: str
 
     class Config:
         env_file = ".env"
