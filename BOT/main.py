@@ -32,7 +32,7 @@ async def main() -> None:
                 [
                     InlineKeyboardButton(
                         text="🎓 Admin App",
-                        web_app=WebAppInfo(url="https://rewards-system-seven.vercel.app/admin")
+                        web_app=WebAppInfo(url="https://utterly-fancy-gator.ngrok-free.app")
                     )
                 ],
                 # [

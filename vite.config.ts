@@ -18,4 +18,20 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  server: {
+    host: true,
+    hmr: {
+      clientPort: 443
+    },
+    proxy: {
+      "/api": {
+        target: "http://localhost:8000",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+    allowedHosts: [
+      "utterly-fancy-gator.ngrok-free.app",
+    ],
+  }
 })

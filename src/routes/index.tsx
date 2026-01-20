@@ -51,19 +51,13 @@ function RouteComponent() {
           return
         }
 
-        // Login with Telegram data
-        const loginResponse = await fetch('http://localhost:8000/api/auth/login', {
+        // Get the raw init data string from Telegram
+        const initDataString = webApp.initData
+        
+        const loginResponse = await fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            telegram_id: telegramUser.id,
-            first_name: telegramUser.first_name,
-            last_name: telegramUser.last_name || '',
-            username: telegramUser.username || '',
-            language_code: telegramUser.language_code || 'en',
-            photo_url: telegramUser.photo_url || '',
-            role: 'student',
-          }),
+          body: JSON.stringify({ init_data: initDataString }),
         })
 
         if (!loginResponse.ok) {
@@ -74,7 +68,7 @@ function RouteComponent() {
         localStorage.setItem('authToken', access_token)
 
         // Get user data
-        const meResponse = await fetch('http://localhost:8000/api/auth/me', {
+        const meResponse = await fetch('/api/auth/me', {
           headers: { Authorization: `Bearer ${access_token}` },
         })
 
@@ -85,7 +79,6 @@ function RouteComponent() {
         const userData = await meResponse.json()
         localStorage.setItem('user', JSON.stringify(userData))
 
-        // Redirect based on role
         const roleRoutes = {
           admin: '/admin',
           teacher: '/teacher',

@@ -1,70 +1,77 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useEffect, useState } from 'react';
+import { useAuth } from '@/context/AuthContext'
 
 export const Route = createFileRoute('/admin/')({
   component: RouteComponent,
 })
 
-type TelegramUser = {
-  id: number,
-  is_bot?: boolean,
-  first_name: string,
-  last_name?: string,
-  username?: string,
-  language_code?: string,
-  photo_url?: string,
-}
-
 function RouteComponent() {
-  const [telegramUser, setTelegramUser] = useState<TelegramUser | null>(null)
+  const { user, loading } = useAuth()
 
-  useEffect(() => {
-    // @ts-ignore
-    if (window.Telegram?.WebApp) {
-      // @ts-ignore
-      const webApp = window.Telegram.WebApp;
-      webApp.ready();
-      setTelegramUser(webApp.initDataUnsafe?.user || null);
-    }
-  }, []);
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-center">
+          <p className="text-lg font-semibold">Loading...</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-4">
       <h1 className="text-2xl font-bold">Admin Dashboard</h1>
 
-      {telegramUser ? (
-        <div className="border rounded-lg p-4 bg-card">
-          <h2 className="text-lg font-semibold mb-4">Telegram User Information</h2>
-          <div className="grid gap-3">
-            <div>
-              <span className="font-medium text-sm">ID:</span>
-              <p className="text-sm text-muted-foreground">{telegramUser.id}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">First Name:</span>
-              <p className="text-sm text-muted-foreground">{telegramUser.first_name}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">Last Name:</span>
-              <p className="text-sm text-muted-foreground">{telegramUser.last_name || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">Username:</span>
-              <p className="text-sm text-muted-foreground">@{telegramUser.username || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">Language:</span>
-              <p className="text-sm text-muted-foreground">{telegramUser.language_code || 'N/A'}</p>
-            </div>
-            <div>
-              <span className="font-medium text-sm">Photo Url:</span>
-              <p className="text-sm text-muted-foreground">{telegramUser.photo_url || 'N/A'}</p>
+      {user ? (
+        <>
+          <div className="border rounded-lg p-4 bg-card">
+            <h2 className="text-lg font-semibold mb-4">User Information</h2>
+            <div className="grid gap-3">
+              <div>
+                <span className="font-medium text-sm">ID:</span>
+                <p className="text-sm text-muted-foreground">{user.id}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">Telegram ID:</span>
+                <p className="text-sm text-muted-foreground">{user.telegram_id}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">First Name:</span>
+                <p className="text-sm text-muted-foreground">{user.first_name}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">Last Name:</span>
+                <p className="text-sm text-muted-foreground">{user.last_name || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">Username:</span>
+                <p className="text-sm text-muted-foreground">@{user.username || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">Language:</span>
+                <p className="text-sm text-muted-foreground">{user.language_code || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">Photo URL:</span>
+                <p className="text-sm text-muted-foreground">{user.photo_url || 'N/A'}</p>
+              </div>
+              <div>
+                <span className="font-medium text-sm">Role:</span>
+                <p className="text-sm text-muted-foreground font-semibold uppercase">{user.role}</p>
+              </div>
             </div>
           </div>
-        </div>
+
+          <div className="border rounded-lg p-4 bg-card">
+            <h2 className="text-lg font-semibold mb-4">User Data (JSON)</h2>
+            <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-60">
+              {JSON.stringify(user, null, 2)}
+            </pre>
+          </div>
+        </>
       ) : (
         <div className="border rounded-lg p-4 bg-card">
-          <p className="text-muted-foreground">Loading user information...</p>
+          <p className="text-muted-foreground">No user data available. Please log in.</p>
         </div>
       )}
     </div>

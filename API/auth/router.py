@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from dependencies import getDB, verify_password, verify_telegram_auth
+from dependencies import getDB, verify_telegram_auth
 from . import schemas as s
 from . import crud as c
 from users.models import Users
@@ -15,17 +15,23 @@ def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current
     return user
 
 @router.post("/login", response_model=s.TokenPayload)
-def login(data: us.UserCreate, db: Session = Depends(getDB)):
-    if not verify_telegram_auth(data):
+def login(payload: s.TelegramInitData, db: Session = Depends(getDB)):
+    data = payload.model_dump()
+    if not verify_telegram_auth(data.copy()):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid Telegram credentials."
         )
     
-    user = db.query(Users).filter(Users.telegram_id == data.telegram_id).first()
+    user = db.query(Users).filter(Users.telegram_id == payload.user.id).first()
 
     if not user:
-        user = uc.create_user(db=db, data=data)
+        user_data = payload.user.model_dump()
+        role = user_data.pop("role", None)
+        user_data["telegram_id"] = user_data.pop("id")
+        
+        user_create_data = us.UserCreate(**user_data, role=role)
+        user = uc.create_user(db=db, data=user_create_data)
 
         token = c.encode_token({"sub": str(user.id)})
 
