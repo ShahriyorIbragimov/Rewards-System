@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from uuid import UUID
 from mixins import CreatedBy
-from models import Member
+from .models import Member
 
 class GroupCreate(BaseModel):
     title: str

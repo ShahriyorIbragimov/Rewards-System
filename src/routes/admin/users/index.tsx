@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useAuth } from '@/context/AuthContext'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 export const Route = createFileRoute('/admin/users/')({
   component: RouteComponent,
@@ -31,6 +31,10 @@ function RouteComponent() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+
+  const [query, setQuery] = useState('')
+  const [roleFilter, setRoleFilter] = useState<'all' | 'teacher' | 'student'>('all')
+  const [searchKey, setSearchKey] = useState<'id' | 'telegram_id' | 'name' | 'username'>('name')
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -58,36 +62,94 @@ function RouteComponent() {
     fetchUsers()
   }, [token])
 
+  const filteredUsers = useMemo(() => {
+    const q = query.trim().toLowerCase()
+
+    const matchesQuery = (u: User) => {
+      if (!q) return true
+      if (searchKey === 'name') {
+        const fullName = `${u.first_name || ''} ${u.last_name || ''}`.trim().toLowerCase()
+        return fullName.includes(q)
+      }
+      if (searchKey === 'username') {
+        return (u.username || '').toLowerCase().includes(q)
+      }
+      if (searchKey === 'telegram_id') {
+        return String(u.telegram_id ?? '').toLowerCase().includes(q)
+      }
+      // searchKey === 'id'
+      return (u.id || '').toLowerCase().includes(q)
+    }
+
+    const matchesRole = (u: User) => {
+      if (roleFilter === 'all') return true
+      return u.role === roleFilter
+    }
+
+    const result = users.filter((u) => matchesRole(u) && matchesQuery(u))
+
+    // Sort by the selected search key (so list order matches what you're searching on)
+    const sorted = [...result].sort((a, b) => {
+      if (searchKey === 'telegram_id') return a.telegram_id - b.telegram_id
+      if (searchKey === 'name') {
+        const an = `${a.first_name || ''} ${a.last_name || ''}`.trim()
+        const bn = `${b.first_name || ''} ${b.last_name || ''}`.trim()
+        return an.localeCompare(bn)
+      }
+      if (searchKey === 'username') return (a.username || '').localeCompare(b.username || '')
+      // searchKey === 'id'
+      return (a.id || '').localeCompare(b.id || '')
+    })
+
+    return sorted
+  }, [users, query, roleFilter, searchKey])
+
   return (
     <>
       <div className='w-full flex flex-col gap-2 mb-4'>
-        <div>
-          <Input className='w-full'></Input>
-        </div>
         <div className='w-full flex gap-2'>
-          <Select>
+          <Input
+            className='w-full'
+            placeholder={
+              searchKey === 'name'
+                ? 'Search by name...'
+                : searchKey === 'username'
+                  ? 'Search by username...'
+                  : searchKey === 'telegram_id'
+                    ? 'Search by telegram id...'
+                    : 'Search by id...'
+            }
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as typeof roleFilter)}>
             <SelectTrigger className='w-full'>
               <SelectValue placeholder="Select a role" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="teacher">Teacher</SelectItem>
                 <SelectItem value="student">Student</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
-          <Select>
+          <Select value={searchKey} onValueChange={(v) => setSearchKey(v as typeof searchKey)}>
             <SelectTrigger className='w-full'>
-              <SelectValue placeholder="Sort by" />
+              <SelectValue placeholder="Search/Sort by" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                {}
+                <SelectItem value="name">Name</SelectItem>
+                <SelectItem value="username">Username</SelectItem>
+                <SelectItem value="telegram_id">Telegram ID</SelectItem>
+                <SelectItem value="id">ID</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
         </div>
       </div>
+
       {loading && (
         <span>Loading...</span>
       )}
@@ -103,7 +165,7 @@ function RouteComponent() {
       )}
 
       {!loading && !error && (
-        <UsersDataTable users={users} />
+        <UsersDataTable users={filteredUsers} />
       )}
     </>
   )
