@@ -19,7 +19,7 @@ type TelegramUser = {
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const { user, token } = useAuth()
+  const { user, token, login } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -65,7 +65,6 @@ function RouteComponent() {
         }
 
         const { access_token } = await loginResponse.json()
-        localStorage.setItem('authToken', access_token)
 
         const meResponse = await fetch('/api/auth/me', {
           headers: { Authorization: `Bearer ${access_token}` },
@@ -76,7 +75,8 @@ function RouteComponent() {
         }
 
         const userData = await meResponse.json()
-        localStorage.setItem('user', JSON.stringify(userData))
+        // update context and persist
+        login(access_token, userData)
 
         const roleRoutes = {
           admin: '/admin',
@@ -93,7 +93,7 @@ function RouteComponent() {
     }
 
     initializeApp()
-  }, [navigate, user, token])
+  }, [navigate, user, token, login])
 
   if (loading) {
     return (

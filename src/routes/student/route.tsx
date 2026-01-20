@@ -17,27 +17,27 @@ const navItems = {
         {
             title: "Home",
             icon: Home,
-            url: "/admin/main"
+            url: "/student/main"
         },
         {
             title: "Marketplace",
             icon: Store,
-            url: "/admin/marketplace"
+            url: "/student/marketplace"
         },
         {
             title: "Items",
             icon: ShoppingBag,
-            url: "/admin/items"
+            url: "/student/items"
         },
         {
             title: "Groups",
             icon: Users,
-            url: "/admin/groups"
+            url: "/student/groups"
         },
         {
             title: "Profile",
             icon: User,
-            url: "/admin/profile"
+            url: "/student/profile"
         }
     ],
 }

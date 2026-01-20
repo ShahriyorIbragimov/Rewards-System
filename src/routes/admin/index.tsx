@@ -1,13 +1,26 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useAuth } from '@/context/AuthContext'
+import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import { useNavigate } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/admin/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { user, loading, logout } = useAuth()
+  const { user, token, loading, logout } = useAuth()
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!user && !token) {
+      navigate({to: "/"})
+    }
+
+    if (user?.role !== "admin") {
+      navigate({to: "/"})
+    }
+  }, [user, token])
 
   if (loading) {
     return (

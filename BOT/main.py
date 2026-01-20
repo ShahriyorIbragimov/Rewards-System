@@ -7,13 +7,11 @@ import asyncio
 import os
 import logging
 
-# Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 load_dotenv()
 
-# Initialize bot and dispatcher
 async def main() -> None:
     token = os.getenv("API")
     if not token:
@@ -26,32 +24,19 @@ async def main() -> None:
     # Define handlers
     @dp.message(Command("start"))
     async def command_start_handler(message: types.Message) -> None:
-        # Create inline buttons with web_app
         keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
-                        text="🎓 Admin App",
+                        text="🎓 Start App",
                         web_app=WebAppInfo(url="https://utterly-fancy-gator.ngrok-free.app")
                     )
-                ],
-                # [
-                #     InlineKeyboardButton(
-                #         text="👨‍🎓 Student App",
-                #         web_app=WebAppInfo(url="https://rewards-system.netlify.app/student")
-                #     )
-                # ],
-                # [
-                #     InlineKeyboardButton(
-                #         text="👨‍🏫 Teacher App",
-                #         web_app=WebAppInfo(url="https://rewards-system.netlify.app/teacher")
-                #     )
-                # ]
+                ]
             ]
         )
         await message.answer(
             "Welcome to Rewards System! 🎉\n\n"
-            "Choose your role to continue:",
+            "Press the button to continue:",
             reply_markup=keyboard
         )
 

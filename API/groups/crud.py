@@ -125,3 +125,63 @@ def deactivate_group(db: Session, id: uuid.UUID):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+    
+def add_member(db: Session, data: s.MemberCreate):
+    try:
+        member = db.query(m.GroupMemberships).filter(
+            m.GroupMemberships.user_id == data.user_id
+        ).first()
+        if member:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This user is already in this group.",
+            )
+        member_data = data.model_dump()
+        member = m.Groups(**member_data)
+        db.add(member)
+        db.commit()
+        db.refresh(member)
+        return member
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
+def get_members(group_id: uuid.UUID, db: Session):
+    try:
+        return db.query(m.GroupMemberships).filter(m.GroupMemberships.group_id == group_id).all()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
+def get_member(id: uuid.UUID, db: Session):
+    try:
+        return db.query(m.GroupMemberships).filter(m.GroupMemberships.id == id).all()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    
+def delete_member(db: Session, id: uuid.UUID):
+    try:
+        member = get_member(db=db, id=id)
+        db.delete(member)
+        db.commit()
+        return member
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
