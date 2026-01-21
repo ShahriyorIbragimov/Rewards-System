@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from mixins import CreatedBy
 from uuid import UUID
 
 class ProductCreate(BaseModel):
@@ -11,6 +12,7 @@ class ProductCreate(BaseModel):
     is_active: bool
     is_featured: bool
     sort_order: int
+    created_by: CreatedBy
 
 class ProductOut(ProductCreate):
     id: UUID

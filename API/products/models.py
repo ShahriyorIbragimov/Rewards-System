@@ -2,9 +2,9 @@ from sqlalchemy import String, UUID, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 import uuid
-from mixins import TimestampMixin
+from mixins import TimestampMixin, CreatedByMixin
 
-class Products(TimestampMixin, Base):
+class Products(TimestampMixin, CreatedByMixin, Base):
     __tablename__ = "products"
 
     id: Mapped[uuid.UUID] = mapped_column(
@@ -21,5 +21,5 @@ class Products(TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_featured: Mapped[bool] = mapped_column(default=False)
     sort_order: Mapped[int] = mapped_column(default=0)
-
+    
     order_items: Mapped[list["OrderItems"]] = relationship(back_populates="product") # type: ignore
