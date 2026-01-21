@@ -29,5 +29,5 @@ class Transactions(TimestampMixin, CreatedByMixin, Base):
     balance_after: Mapped[int] = mapped_column()
     reference_id: Mapped[uuid.UUID] = mapped_column(nullable=True)
     description: Mapped[str] = mapped_column(Text)
-
+    
     student_profiles: Mapped["StudentProfiles"] = relationship(back_populates="transactions") # type: ignore

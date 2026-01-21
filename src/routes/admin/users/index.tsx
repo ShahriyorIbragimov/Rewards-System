@@ -10,6 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useAuth } from '@/context/AuthContext'
+import { useSidebar } from '@/components/ui/sidebar'
 import { useEffect, useState, useMemo } from 'react'
 
 export const Route = createFileRoute('/admin/users/')({
@@ -31,6 +32,7 @@ function RouteComponent() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { isMobile } = useSidebar()
 
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'teacher' | 'student'>('all')
@@ -77,7 +79,6 @@ function RouteComponent() {
       if (searchKey === 'telegram_id') {
         return String(u.telegram_id ?? '').toLowerCase().includes(q)
       }
-      // searchKey === 'id'
       return (u.id || '').toLowerCase().includes(q)
     }
 
@@ -88,7 +89,6 @@ function RouteComponent() {
 
     const result = users.filter((u) => matchesRole(u) && matchesQuery(u))
 
-    // Sort by the selected search key (so list order matches what you're searching on)
     const sorted = [...result].sort((a, b) => {
       if (searchKey === 'telegram_id') return a.telegram_id - b.telegram_id
       if (searchKey === 'name') {
@@ -97,7 +97,6 @@ function RouteComponent() {
         return an.localeCompare(bn)
       }
       if (searchKey === 'username') return (a.username || '').localeCompare(b.username || '')
-      // searchKey === 'id'
       return (a.id || '').localeCompare(b.id || '')
     })
 
@@ -107,7 +106,7 @@ function RouteComponent() {
   return (
     <>
       <div className='w-full flex flex-col gap-2 mb-4'>
-        <div className='w-full flex gap-2'>
+        <div className={ !isMobile ? "w-full flex gap-2" : "w-full flex flex-col gap-2"}>
           <Input
             className='w-full'
             placeholder={

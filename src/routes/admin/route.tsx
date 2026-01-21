@@ -4,8 +4,7 @@ import {
   SidebarInset,
   SidebarProvider
 } from "@/components/ui/sidebar"
-import { Header } from '@/components/header'
-import Navigation from '@/components/navigation'
+import { Header } from '@/components/admin-header'
 import {
   ShoppingBag,
   Home,
@@ -93,7 +92,6 @@ function Layout() {
         <div className='p-4 pl-2'>
           <Outlet />
         </div>
-        <Navigation navItems={navItems} />
       </SidebarInset>
     </SidebarProvider>
   )

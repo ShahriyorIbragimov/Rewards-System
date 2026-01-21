@@ -1,7 +1,6 @@
 import {
     Table,
     TableBody,
-    TableCaption,
     TableCell,
     TableHead,
     TableHeader,
@@ -25,7 +24,6 @@ interface DataTableProps {
 export default function UsersDataTable({ users }: DataTableProps) {
     return (
         <Table>
-            <TableCaption>List of users</TableCaption>
             <TableHeader>
                 <TableRow>
                     <TableHead>ID</TableHead>

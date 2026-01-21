@@ -4,7 +4,7 @@ import {
     SidebarInset,
     SidebarProvider
 } from "@/components/ui/sidebar"
-import { Header } from '@/components/header'
+import { Header } from '@/components/student-header'
 import Navigation from '@/components/navigation'
 import { ShoppingBag, Home, Store, Users, User } from "lucide-react"
 
