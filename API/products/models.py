@@ -1,4 +1,4 @@
-from sqlalchemy import String, UUID, Text, ForeignKey
+from sqlalchemy import String, UUID, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database import Base
 import uuid
@@ -21,7 +21,5 @@ class Products(TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     is_featured: Mapped[bool] = mapped_column(default=False)
     sort_order: Mapped[int] = mapped_column(default=0)
-    created_by: Mapped[uuid.UUID] = mapped_column(ForeignKey("admin_profiles.id"))
 
-    admin_profiles: Mapped["AdminProfiles"] = relationship(back_populates="products") # type: ignore
     order_items: Mapped[list["OrderItems"]] = relationship(back_populates="product") # type: ignore

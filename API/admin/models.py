@@ -18,5 +18,4 @@ class AdminProfiles(TimestampMixin, Base):
     is_active: Mapped[bool] = mapped_column(default=True)
     
     user: Mapped["Users"] = relationship(back_populates="admin_profiles") # type: ignore
-    products: Mapped[list["Products"]] = relationship(back_populates="admin_profiles") # type: ignore
     
