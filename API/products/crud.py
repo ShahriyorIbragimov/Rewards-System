@@ -4,22 +4,22 @@ from . import models as m
 from fastapi import HTTPException, status
 import uuid
 
-def create_user(db: Session, data: s.UserCreate):
+def create_product(db: Session, data: s.ProductCreate):
     try:
-        user = db.query(m.Users).filter(
-            m.Users.telegram_id == data.telegram_id
+        product = db.query(m.Products).filter(
+            m.Products.name == data.name
         ).first()
-        if user:
+        if product:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="User with this telegram account already exists.",
+                detail="Product with this name already exists.",
             )
-        user_data = data.model_dump()
-        user = m.Users(**user_data)
-        db.add(user)
+        product_data = data.model_dump()
+        product = m.Users(**product_data)
+        db.add(product)
         db.commit()
-        db.refresh(user)
-        return user
+        db.refresh(product)
+        return product
     except HTTPException:
         raise
     except Exception as e:
@@ -28,28 +28,28 @@ def create_user(db: Session, data: s.UserCreate):
             detail=str(e),
         )
 
-def update_user(db: Session, data: s.UserUpdate):
+def update_product(db: Session, data: s.ProductUpdate):
     try:
-        user = db.query(m.Users).filter(m.Users.id == data.id).first()
-        if not user:
+        product = db.query(m.Products).filter(m.Products.id == data.id).first()
+        if not product:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User is not found."
+                detail="Product is not found."
             )
         for key, value in data.model_dump().items():
-            setattr(user, key, value)
+            setattr(product, key, value)
         db.commit()
-        db.refresh(user)
-        return user
+        db.refresh(product)
+        return product
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e)
         )
 
-def get_users(db: Session):
+def get_products(db: Session):
     try:
-        return db.query(m.Users).all()
+        return db.query(m.Products).all()
     except HTTPException:
         raise
     except Exception as e:
@@ -58,15 +58,37 @@ def get_users(db: Session):
             detail=str(e),
         )
 
-def get_user(db: Session, id: uuid.UUID):
+def get_active_products(db: Session):
     try:
-        user = db.query(m.Users).filter(m.Users.id == id).first()
-        if not user:
+        return db.query(m.Products).filter(m.Products.is_active == True).all()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+def get_inactive_products(db: Session):
+    try:
+        return db.query(m.Products).filter(m.Products.is_active == False).all()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+def get_product(db: Session, id: uuid.UUID):
+    try:
+        product = db.query(m.Product).filter(m.Product.id == id).first()
+        if not product:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User is not found."
+                detail="Product is not found."
             )
-        return user
+        return product
     except HTTPException:
         raise
     except Exception as e:
@@ -75,12 +97,27 @@ def get_user(db: Session, id: uuid.UUID):
             detail=str(e),
         )
 
-def delete_user(db: Session, id: uuid.UUID):
+def deactivate_product(db: Session, id: uuid.UUID):
     try:
-        user = get_user(db=db, id=id)
-        db.delete(user)
+        product = get_product(db=db, id=id)
+        product.is_active = False
         db.commit()
-        return user
+        db.refresh(product)
+        return product
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
+def delete_product(db: Session, id: uuid.UUID):
+    try:
+        product = get_product(db=db, id=id)
+        db.delete(product)
+        db.commit()
+        return product
     except HTTPException:
         raise
     except Exception as e:
