@@ -2,10 +2,6 @@ from database import SessionLocal
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from users.models import Users, Role
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
@@ -22,8 +18,8 @@ def verify_password(plain_password, hashed_password):
 def hash_password(password):
     return pwd_context.hash(password)
 
-def isAdmin(user: Users):
-    if user.role == Role.admin:
+def isWho(user: Users, role: Role):
+    if user.role == role:
         return True
     
     raise HTTPException(

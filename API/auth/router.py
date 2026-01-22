@@ -11,6 +11,7 @@ from users import schemas as us
 from users import crud as uc
 from students import crud as sc
 from students import schemas as ss
+from students import models as sm
 import os
 from dotenv import load_dotenv
 
@@ -18,7 +19,7 @@ load_dotenv()
 
 router = APIRouter()
 
-@router.get("/me", response_model=us.UserOut)
+@router.get("/me", response_model=ss.StudentOutWithUser)
 def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     user = uc.get_user(db=db, id=current_user.id)
     if user.role == Role.admin:
@@ -26,9 +27,8 @@ def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current
     if user.role == Role.teacher:
         pass
     if user.role == Role.student:
-        student
-
-    return user
+        student = db.query(sm.StudentProfiles).filter(sm.StudentProfiles.user_id == current_user.id)
+        return student
 
 @router.post("/login", response_model=s.TokenPayload)
 def login(payload: s.InitDataPayload, db: Session = Depends(getDB)):
@@ -38,7 +38,6 @@ def login(payload: s.InitDataPayload, db: Session = Depends(getDB)):
             parsed["user"] = json.loads(parsed["user"])
         except Exception:
             pass
-
     try:
         tdata = s.TelegramInitData(**parsed)
     except ValidationError as e:
