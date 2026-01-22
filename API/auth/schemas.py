@@ -25,6 +25,5 @@ class TelegramInitData(BaseModel):
     signature: str
     hash: str
 
-
 class InitDataPayload(BaseModel):
     init_data: str

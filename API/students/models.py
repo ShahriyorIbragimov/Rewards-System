@@ -19,7 +19,7 @@ class StudentProfiles(TimestampMixin, Base):
     avatar_url: Mapped[str] = mapped_column(String(500), nullable=True)
     bio: Mapped[str] = mapped_column(Text, nullable=True)
     is_active: Mapped[bool] = mapped_column(default=True)
-
+    
     user: Mapped["Users"] = relationship(back_populates="student_profiles") # type: ignore
     rewards: Mapped[list["Rewards"]] = relationship(back_populates="student_profiles") # type: ignore
     orders: Mapped[list["Orders"]] = relationship(back_populates="student_profiles") # type: ignore

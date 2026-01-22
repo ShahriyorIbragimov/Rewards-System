@@ -9,6 +9,8 @@ from . import crud as c
 from users.models import Users, Role
 from users import schemas as us
 from users import crud as uc
+from students import crud as sc
+from students import schemas as ss
 import os
 from dotenv import load_dotenv
 
@@ -19,6 +21,13 @@ router = APIRouter()
 @router.get("/me", response_model=us.UserOut)
 def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     user = uc.get_user(db=db, id=current_user.id)
+    if user.role == Role.admin:
+        pass
+    if user.role == Role.teacher:
+        pass
+    if user.role == Role.student:
+        student
+
     return user
 
 @router.post("/login", response_model=s.TokenPayload)
@@ -47,6 +56,15 @@ def login(payload: s.InitDataPayload, db: Session = Depends(getDB)):
         user_create_data = us.UserCreate(**user_data)
         user = uc.create_user(db=db, data=user_create_data)
 
+        student_data = {
+            "user_id": user.id,
+            "avatar_url": user.photo_url,
+            "bio": "",
+            "is_active": True
+        }
+
+        sc.create_student(db=db, data=ss.StudentCreate(**student_data))
+
         token = c.encode_token({"sub": str(user.id)})
 
         return {
@@ -67,7 +85,7 @@ def update(data: us.UserUpdate, db: Session = Depends(getDB), current_user: User
     if data.id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not allowed to perform this action.."
+            detail="You are not allowed to perform this action."
         )
     user = uc.update_user(db, data)
     return user
