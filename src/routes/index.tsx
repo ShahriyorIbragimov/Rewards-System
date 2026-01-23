@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useAuth, type StudentProfile } from '@/context/AuthContext'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -19,16 +19,44 @@ type TelegramUser = {
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const { user, token, login } = useAuth()
+  const { user, token, login, logout } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
+    logout()
+  }, [])
+
+  useEffect(() => {
+    if (user && token) {
+      const roleRoutes = {
+        admin: '/admin',
+        teacher: '/teacher',
+        student: '/student',
+      }
+      navigate({ to: roleRoutes[user.role] || '/student' })
+    }
+  }, [user, token])
+
+  useEffect(() => {
+    if (user && token) {
+      const roleRoutes = {
+        admin: '/admin',
+        teacher: '/teacher',
+        student: '/student',
+      }
+      navigate({ to: roleRoutes[user.role] || '/student' })
+    }
+  }, [user, token])
+
+  useEffect(() => {
+    let isMounted = true
+
     const initializeApp = async () => {
       try {
         // @ts-ignore
         if (!window.Telegram?.WebApp) {
-          setError('Please open this app through the Telegram bot')
+          if (isMounted) setError('Please open this app through the Telegram bot')
           return
         }
 
@@ -38,10 +66,11 @@ function RouteComponent() {
         const telegramUser = webApp.initDataUnsafe?.user as TelegramUser | undefined
 
         if (!telegramUser?.id) {
-          setError('Could not retrieve your Telegram information')
+          if (isMounted) setError('Could not retrieve your Telegram information')
           return
         }
 
+        // If user is already logged in, navigate to their role page
         if (user && token) {
           const roleRoutes = {
             admin: '/admin',
@@ -61,7 +90,8 @@ function RouteComponent() {
         })
 
         if (!loginResponse.ok) {
-          throw new Error('Login failed')
+          const errorData = await loginResponse.json().catch(() => ({}))
+          throw new Error(errorData.detail || 'Login failed')
         }
 
         const { access_token } = await loginResponse.json()
@@ -71,29 +101,59 @@ function RouteComponent() {
         })
 
         if (!meResponse.ok) {
-          throw new Error('Failed to fetch user data')
+          const errorData = await meResponse.json().catch(() => ({}))
+          throw new Error(errorData.detail || 'Failed to fetch user data')
         }
 
-        const userData = await meResponse.json()
-        // update context and persist
-        login(access_token, userData)
+        const responseData = await meResponse.json()
+        const userData = responseData.user
+        const studentData = responseData.student
 
-        const roleRoutes = {
-          admin: '/admin',
-          teacher: '/teacher',
-          student: '/student',
+        // Only create student profile if student data exists
+        const studentProfile: StudentProfile | undefined = studentData ? {
+          id: studentData.id as string,
+          user_id: userData.id as string,
+          coin_balance: studentData.coin_balance as number,
+          total_coins_earned: studentData.total_coins_earned as number,
+          total_coins_spent: studentData.total_coins_spent as number,
+          avatar_url: studentData.avatar_url as string,
+          bio: studentData.bio as string,
+          is_active: studentData.is_active as boolean,
+        } : undefined
+
+        if (isMounted) {
+          login(access_token, userData, studentProfile)
+
+          const roleRoutes = {
+            admin: '/admin',
+            teacher: '/teacher',
+            student: '/student',
+          }
+          const userRole = (userData.role || 'student') as keyof typeof roleRoutes
+          navigate({ to: roleRoutes[userRole] })
         }
-        const userRole = (userData.role || 'student') as keyof typeof roleRoutes
-        navigate({ to: roleRoutes[userRole] })
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+        if (isMounted) {
+          setError(err instanceof Error ? err.message : 'An error occurred')
+        }
       } finally {
-        setLoading(false)
+        if (isMounted) {
+          setLoading(false)
+        }
       }
     }
 
-    initializeApp()
-  }, [navigate, user, token, login])
+    // Only run if we don't have both user and token
+    if (!user || !token) {
+      initializeApp()
+    } else {
+      setLoading(false)
+    }
+
+    return () => {
+      isMounted = false
+    }
+  }, []) // Empty dependency array - only run once on mount
 
   if (loading) {
     return (

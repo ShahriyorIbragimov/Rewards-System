@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from ..mixins import CreatedBy
+from mixins import CreatedBy
 import uuid
 
 class RewardCreate(BaseModel):

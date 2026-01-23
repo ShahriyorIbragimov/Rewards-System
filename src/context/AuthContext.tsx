@@ -13,19 +13,32 @@ export interface User {
   role: Role;
 }
 
+export interface StudentProfile {
+  id: string;
+  user_id: string;
+  coin_balance: number;
+  total_coins_earned: number;
+  total_coins_spent: number;
+  avatar_url: string;
+  bio: string;
+  is_active: boolean;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  studentProfile: StudentProfile | null;
   loading: boolean;
   error: string | null;
   logout: () => void;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, studentProfile?: StudentProfile) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error] = useState<string | null>(null);
@@ -67,18 +80,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = useCallback((t: string, u: User) => {
+  const login = useCallback((t: string, u: User, sp?: StudentProfile) => {
     setToken(t);
     setUser(u);
+    setStudentProfile(sp || null);
     try {
       localStorage.setItem('authToken', t);
       localStorage.setItem('user', JSON.stringify(u));
+      if (sp) {
+        localStorage.setItem('studentProfile', JSON.stringify(sp));
+      }
     } catch {
       // ignore
     }
-  }, []);
+  }, [setToken, setUser, setStudentProfile]);
 
-  // listen to cross-tab storage changes and update state
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === 'authToken') {
@@ -144,7 +160,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [token, logout]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, logout, login }}>
+    <AuthContext.Provider value={{ user, token, loading, error, logout, login, studentProfile }}>
       {children}
     </AuthContext.Provider>
   );

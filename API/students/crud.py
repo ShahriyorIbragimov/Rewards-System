@@ -15,7 +15,7 @@ def create_student(db: Session, data: s.StudentCreate):
                 detail="Student profile with this user already exists.",
             )
         student_data = data.model_dump()
-        student = m.Users(**student_data)
+        student = m.StudentProfiles(**student_data)
         db.add(student)
         db.commit()
         db.refresh(student)
