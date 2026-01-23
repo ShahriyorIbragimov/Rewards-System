@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
-import { useAuth, type StudentProfile } from '@/context/AuthContext'
+import { useAuth, type StudentProfile, type AdminProfile } from '@/context/AuthContext'
 
 export const Route = createFileRoute('/')({
   component: RouteComponent,
@@ -26,17 +26,6 @@ function RouteComponent() {
   useEffect(() => {
     logout()
   }, [])
-
-  useEffect(() => {
-    if (user && token) {
-      const roleRoutes = {
-        admin: '/admin',
-        teacher: '/teacher',
-        student: '/student',
-      }
-      navigate({ to: roleRoutes[user.role] || '/student' })
-    }
-  }, [user, token])
 
   useEffect(() => {
     if (user && token) {
@@ -106,13 +95,46 @@ function RouteComponent() {
         }
 
         const responseData = await meResponse.json()
-        const userData = responseData.user
-        const studentData = responseData.student
+        let adminData: any = null;
+        let studentData: any = null;
 
-        // Only create student profile if student data exists
+        if (responseData.role == "admin") {
+          const profileResponse = await fetch('/api/admin/me', {
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+  
+          if (!profileResponse.ok) {
+            const errorData = await profileResponse.json().catch(() => ({}))
+            throw new Error(errorData.detail || 'Failed to fetch profile data')
+          }
+  
+          adminData = await meResponse.json()
+        }
+
+        const adminProfile: AdminProfile | undefined = adminData ? {
+          id: adminData.id as string,
+          user_id: responseData.id as string,
+          avatar_url: adminData.avatar_url as string,
+          bio: adminData.bio as string,
+          is_active: adminData.is_active as boolean,
+        } : undefined
+
+        if (responseData.role == "student") {
+          const profileResponse = await fetch('/api/student/me', {
+            headers: { Authorization: `Bearer ${access_token}` },
+          })
+  
+          if (!profileResponse.ok) {
+            const errorData = await profileResponse.json().catch(() => ({}))
+            throw new Error(errorData.detail || 'Failed to fetch profile data')
+          }
+  
+          studentData = await meResponse.json()
+        }
+
         const studentProfile: StudentProfile | undefined = studentData ? {
           id: studentData.id as string,
-          user_id: userData.id as string,
+          user_id: responseData.id as string,
           coin_balance: studentData.coin_balance as number,
           total_coins_earned: studentData.total_coins_earned as number,
           total_coins_spent: studentData.total_coins_spent as number,
@@ -122,14 +144,14 @@ function RouteComponent() {
         } : undefined
 
         if (isMounted) {
-          login(access_token, userData, studentProfile)
+          login(access_token, responseData, adminProfile, studentProfile)
 
           const roleRoutes = {
             admin: '/admin',
             teacher: '/teacher',
             student: '/student',
           }
-          const userRole = (userData.role || 'student') as keyof typeof roleRoutes
+          const userRole = (responseData.role || 'student') as keyof typeof roleRoutes
           navigate({ to: roleRoutes[userRole] })
         }
       } catch (err) {
@@ -143,7 +165,6 @@ function RouteComponent() {
       }
     }
 
-    // Only run if we don't have both user and token
     if (!user || !token) {
       initializeApp()
     } else {
@@ -153,7 +174,7 @@ function RouteComponent() {
     return () => {
       isMounted = false
     }
-  }, []) // Empty dependency array - only run once on mount
+  }, [])
 
   if (loading) {
     return (

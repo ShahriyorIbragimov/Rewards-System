@@ -13,6 +13,14 @@ export interface User {
   role: Role;
 }
 
+export interface AdminProfile {
+  id: string;
+  user_id: string;
+  avatar_url: string;
+  bio: string;
+  is_active: boolean;
+}
+
 export interface StudentProfile {
   id: string;
   user_id: string;
@@ -27,17 +35,24 @@ export interface StudentProfile {
 interface AuthContextType {
   user: User | null;
   token: string | null;
+  adminProfile: AdminProfile | null;
   studentProfile: StudentProfile | null;
   loading: boolean;
   error: string | null;
   logout: () => void;
-  login: (token: string, user: User, studentProfile?: StudentProfile) => void;
+  login: (
+    token: string,
+    user: User,
+    adminProfile?: AdminProfile,
+    studentProfile?: StudentProfile
+  ) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
   const [studentProfile, setStudentProfile] = useState<StudentProfile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,20 +95,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
-  const login = useCallback((t: string, u: User, sp?: StudentProfile) => {
-    setToken(t);
-    setUser(u);
-    setStudentProfile(sp || null);
-    try {
-      localStorage.setItem('authToken', t);
-      localStorage.setItem('user', JSON.stringify(u));
-      if (sp) {
-        localStorage.setItem('studentProfile', JSON.stringify(sp));
+  const login = useCallback(
+    (
+      t: string,
+      u: User,
+      ap?: AdminProfile,
+      sp?: StudentProfile
+    ) => {
+      setToken(t);
+      setUser(u);
+      setStudentProfile(sp || null);
+      setAdminProfile(ap || null);
+      try {
+        localStorage.setItem('authToken', t);
+        localStorage.setItem('user', JSON.stringify(u));
+        if (sp) {
+          localStorage.setItem('studentProfile', JSON.stringify(sp));
+        }
+        if (ap) {
+          localStorage.setItem('adminProfile', JSON.stringify(ap));
+        }
+      } catch {
+        // ignore
       }
-    } catch {
-      // ignore
-    }
-  }, [setToken, setUser, setStudentProfile]);
+    }, [setToken, setUser, setStudentProfile, setAdminProfile]);
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -160,7 +185,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [token, logout]);
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, error, logout, login, studentProfile }}>
+    <AuthContext.Provider value={{ user, token, loading, error, logout, login, studentProfile, adminProfile }}>
       {children}
     </AuthContext.Provider>
   );

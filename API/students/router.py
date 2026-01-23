@@ -10,18 +10,24 @@ from auth.crud import get_current_user
 
 router = APIRouter()
 
+@router.get(f"/validate", response_model=s.StudentOut)
+def list_one_student_profile(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
+    if isWho(current_user, um.Role.student):
+        student = c.get_student(id=id, db=db)
+        return student
+
 @router.get("/list-all", response_model=List[s.StudentOut])
 def list_all_student_profiles(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
     if isWho(current_user, um.Role.admin):
         students = c.get_students(db)
         return students
-    
+
 @router.get("/list-active", response_model=List[s.StudentOut])
 def list_active_student_profiles(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
     if isWho(current_user, um.Role.admin):
         students = c.get_active_students(db)
         return students
-    
+
 @router.get("/list-inactive", response_model=List[s.StudentOut])
 def list_inactive_student_profiles(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
     if isWho(current_user, um.Role.admin):
