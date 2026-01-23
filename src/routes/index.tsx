@@ -23,9 +23,9 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    logout()
-  }, [])
+  // useEffect(() => {
+  //   logout()
+  // }, [])
 
   useEffect(() => {
     if (user && token) {
@@ -108,7 +108,7 @@ function RouteComponent() {
             throw new Error(errorData.detail || 'Failed to fetch profile data')
           }
   
-          adminData = await meResponse.json()
+          adminData = await profileResponse.json()
         }
 
         const adminProfile: AdminProfile | undefined = adminData ? {
@@ -120,7 +120,7 @@ function RouteComponent() {
         } : undefined
 
         if (responseData.role == "student") {
-          const profileResponse = await fetch('/api/student/me', {
+          const profileResponse = await fetch('/api/students/validate', {
             headers: { Authorization: `Bearer ${access_token}` },
           })
   
@@ -129,7 +129,7 @@ function RouteComponent() {
             throw new Error(errorData.detail || 'Failed to fetch profile data')
           }
   
-          studentData = await meResponse.json()
+          studentData = await profileResponse.json()
         }
 
         const studentProfile: StudentProfile | undefined = studentData ? {

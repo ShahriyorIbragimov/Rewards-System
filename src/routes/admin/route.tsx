@@ -23,6 +23,7 @@ export const Route = createFileRoute('/admin')({
 })
 
 const navItems = {
+  main_url: "/admin",
   navMain: [
     {
       title: "Home",

@@ -4,6 +4,27 @@ from . import models as m
 from fastapi import HTTPException, status
 import uuid
 
+def validate(db: Session, data: s.StudentCreate):
+    try:
+        student = db.query(m.StudentProfiles).filter(
+            m.StudentProfiles.user_id == data.user_id
+        ).first()
+        if student:
+            return student
+        student_data = data.model_dump()
+        student = m.StudentProfiles(**student_data)
+        db.add(student)
+        db.commit()
+        db.refresh(student)
+        return student
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
 def create_student(db: Session, data: s.StudentCreate):
     try:
         student = db.query(m.StudentProfiles).filter(
@@ -84,10 +105,7 @@ def get_student(db: Session, id: uuid.UUID):
     try:
         student = db.query(m.StudentProfiles).filter(m.StudentProfiles.id == id).first()
         if not student:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User is not found."
-            )
+            return
         return student
     except HTTPException:
         raise

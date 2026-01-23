@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { useAuth } from '@/context/AuthContext'
-import { useSidebar } from '@/components/ui/sidebar'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { useEffect, useState, useMemo } from 'react'
 
 export const Route = createFileRoute('/admin/users/')({
@@ -32,7 +32,7 @@ function RouteComponent() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const { isMobile } = useSidebar()
+  const isMobile = useIsMobile()
 
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'teacher' | 'student'>('all')

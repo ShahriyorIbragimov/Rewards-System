@@ -10,11 +10,20 @@ from auth.crud import get_current_user
 
 router = APIRouter()
 
-@router.get(f"/validate", response_model=s.StudentOut)
-def list_one_student_profile(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
+@router.get("/validate", response_model=s.StudentOut)
+def validate(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
     if isWho(current_user, um.Role.student):
-        student = c.get_student(id=id, db=db)
-        return student
+        student = c.validate(db=db, data=s.StudentCreate(
+            user_id=current_user.id,
+            coin_balance=0,
+            total_coins_earned=0,
+            total_coins_spent=0,
+            avatar_url=current_user.photo_url,
+            bio="",
+            is_active=True
+        ))
+        if student:
+            return student
 
 @router.get("/list-all", response_model=List[s.StudentOut])
 def list_all_student_profiles(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):

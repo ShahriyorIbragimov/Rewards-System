@@ -19,6 +19,7 @@ type NavItem = {
 }
 
 type NavItems = {
+  main_url: string,
   navMain: NavItem[]
 }
 
@@ -31,7 +32,7 @@ export function AppSidebar({ navItems, ...props }: { navItems?: NavItems } & Rea
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link to="/">
+              <Link to={navItems?.main_url}>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <Coins className="size-4" />
                 </div>
