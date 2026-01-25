@@ -99,7 +99,7 @@ function RouteComponent() {
         let studentData: any = null;
 
         if (responseData.role == "admin") {
-          const profileResponse = await fetch('/api/admin/me', {
+          const profileResponse = await fetch('/api/admin/validate', {
             headers: { Authorization: `Bearer ${access_token}` },
           })
   

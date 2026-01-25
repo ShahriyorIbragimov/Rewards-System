@@ -16,7 +16,7 @@ load_dotenv()
 
 router = APIRouter()
 
-@router.get("/me")
+@router.get("/me", response_model=us.UserOut)
 def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
     user = uc.get_user(db=db, id=current_user.id)
     return user

@@ -4,6 +4,27 @@ from . import models as m
 from fastapi import HTTPException, status
 import uuid
 
+def validate(db: Session, data: s.AdminCreate):
+    try:
+        admin = db.query(m.AdminProfiles).filter(
+            m.AdminProfiles.user_id == data.user_id
+        ).first()
+        if admin:
+            return admin
+        admin_data = data.model_dump()
+        admin = m.AdminProfiles(**admin_data)
+        db.add(admin)
+        db.commit()
+        db.refresh(admin)
+        return admin
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+
 def create_admin(db: Session, data: s.AdminCreate):
     try:
         admin = db.query(m.AdminProfiles).filter(
