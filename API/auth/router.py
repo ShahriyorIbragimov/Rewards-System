@@ -1,20 +1,17 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import ValidationError
+from urllib.parse import parse_qsl
 from sqlalchemy.orm import Session
 from dependencies import getDB
 from . import schemas as s
-import json
-from urllib.parse import parse_qsl
-from pydantic import ValidationError
 from . import crud as c
 from users.models import Users, Role
 from users import schemas as us
 from users import crud as uc
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+import json
 
 router = APIRouter()
+ADMINS = []
 
 @router.get("/me", response_model=us.UserOut)
 def me(db: Session = Depends(getDB), current_user: Users = Depends(c.get_current_user)):
@@ -39,7 +36,7 @@ def login(payload: s.InitDataPayload, db: Session = Depends(getDB)):
     if not user:
         user_data = tdata.user.model_dump()
         user_data["role"] = Role.student
-        if tdata.user.username == os.getenv("ADMIN"):
+        if tdata.user.username in ADMINS:
             user_data["role"] = Role.admin
         user_data["telegram_id"] = user_data.pop("id")
         

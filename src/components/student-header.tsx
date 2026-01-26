@@ -14,7 +14,10 @@ import {
 import { useLocation, Link } from '@tanstack/react-router'
 import { ModeToggle } from "./mode-toggle"
 import { Button } from "./ui/button"
-import { SettingsIcon } from "lucide-react"
+import {
+  SettingsIcon,
+  Coins
+} from "lucide-react"
 
 export function Header() {
   const { pathname } = useLocation()
@@ -69,6 +72,10 @@ export function Header() {
         </Breadcrumb>
       </div>
       <div className="flex gap-2">
+        <Button variant="ghost">
+            <Coins/>
+            <span>1234</span>
+        </Button>
         <Link to={createdPathData.length === 0 ? "/settings" : createdPathData[0].path + "/settings"}>
           <Button variant="outline" size="icon">
             <SettingsIcon />

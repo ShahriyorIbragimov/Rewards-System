@@ -23,9 +23,9 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // useEffect(() => {
-  //   logout()
-  // }, [])
+  useEffect(() => {
+    logout()
+  }, [])
 
   useEffect(() => {
     if (user && token) {
