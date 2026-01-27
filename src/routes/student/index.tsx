@@ -57,10 +57,6 @@ function RouteComponent() {
                 <p className="text-sm text-muted-foreground">{user.language_code || 'N/A'}</p>
               </div>
               <div>
-                <span className="font-medium text-sm">Photo URL:</span>
-                <p className="text-sm text-muted-foreground">{user.photo_url || 'N/A'}</p>
-              </div>
-              <div>
                 <span className="font-medium text-sm">Role:</span>
                 <p className="text-sm text-muted-foreground font-semibold uppercase">{user.role}</p>
               </div>

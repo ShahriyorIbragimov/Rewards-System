@@ -36,7 +36,7 @@ def login(payload: s.InitDataPayload, db: Session = Depends(getDB)):
     if not user:
         user_data = tdata.user.model_dump()
         user_data["role"] = Role.student
-        if tdata.user.username in ADMINS:
+        if len(ADMINS) != 0 and tdata.user.username in ADMINS:
             user_data["role"] = Role.admin
         user_data["telegram_id"] = user_data.pop("id")
         

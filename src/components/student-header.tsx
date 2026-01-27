@@ -18,10 +18,12 @@ import {
   SettingsIcon,
   Coins
 } from "lucide-react"
+import { useAuth } from "@/context/AuthContext"
 
 export function Header() {
   const { pathname } = useLocation()
   const { isMobile } = useSidebar()
+  const { studentProfile } = useAuth()
 
   type PathItem = {
     path: string;
@@ -73,8 +75,8 @@ export function Header() {
       </div>
       <div className="flex gap-2">
         <Button variant="ghost">
-            <Coins/>
-            <span>1234</span>
+          <Coins />
+          <span>{studentProfile?.coin_balance}</span>
         </Button>
         <Link to={createdPathData.length === 0 ? "/settings" : createdPathData[0].path + "/settings"}>
           <Button variant="outline" size="icon">
