@@ -17,10 +17,10 @@ def list_all_products(db: Session = Depends(getDB), current_user: um.Users = Dep
         return products
 
 @router.get("/list-active", response_model=List[s.ProductOut])
-def list_active_products(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
-    if isWho(current_user, um.Role.admin):
-        products = c.get_active_products(db)
-        return products
+def list_active_products(db: Session = Depends(getDB)):
+    # if isWho(current_user, um.Role.admin):
+    products = c.get_active_products(db)
+    return products
 
 @router.get("/list-inactive", response_model=List[s.ProductOut])
 def list_inactive_products(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
@@ -29,10 +29,10 @@ def list_inactive_products(db: Session = Depends(getDB), current_user: um.Users 
         return products
 
 @router.get(f"/list/{id}", response_model=s.ProductOut)
-def list_one_group(id: uuid.UUID, db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
-    if isWho(current_user, um.Role.admin):
-        products = c.get_product(id=id, db=db)
-        return products
+def list_one_group(id: uuid.UUID, db: Session = Depends(getDB)):
+    # if isWho(current_user, um.Role.admin):
+    products = c.get_product(id=id, db=db)
+    return products
 
 @router.post("/create", response_model=s.ProductOut)
 def create_product(data: s.ProductCreate, db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):

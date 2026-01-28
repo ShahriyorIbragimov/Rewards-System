@@ -25,6 +25,12 @@ def validate(db: Session = Depends(getDB), current_user: um.Users = Depends(get_
         if student:
             return student
 
+@router.get("/update", response_model=s.StudentOut)
+def update(data: s.StudentUpdate, db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
+    if data.id == current_user.id and isWho(current_user, um.Role.student):
+        student = c.update_student(db, data)
+        return student
+
 @router.get("/list-all", response_model=List[s.StudentOut])
 def list_all_student_profiles(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
     if isWho(current_user, um.Role.admin):

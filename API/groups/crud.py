@@ -79,6 +79,19 @@ def get_inactive_groups(db: Session):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
+    
+def get_user_groups(db: Session):
+    try:
+        return db.query(m.Groups).filter(
+            m.Groups.is_active == True and m.Groups
+        ).all()
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
 
 def get_group(db: Session, id: uuid.UUID):
     try:
@@ -160,7 +173,7 @@ def get_members(group_id: uuid.UUID, db: Session):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         )
-    
+
 def get_member(id: uuid.UUID, db: Session):
     try:
         return db.query(m.GroupMemberships).filter(m.GroupMemberships.id == id).all()

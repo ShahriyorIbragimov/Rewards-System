@@ -55,7 +55,7 @@ function Layout() {
             <AppSidebar navItems={navItems} />
             <SidebarInset>
                 <Header />
-                <div className='p-4 pl-2'>
+                <div className='p-4 pl-2 mb-12'>
                     <Outlet />
                 </div>
                 <Navigation navItems={navItems} />
