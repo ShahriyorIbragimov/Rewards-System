@@ -1,13 +1,24 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useAuth } from '@/context/AuthContext'
-import { Button } from '@/components/ui/button'
+import { motion } from "framer-motion"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Separator } from "@/components/ui/separator"
+import { Coins, Trophy, Users, Gift, Bell, ArrowRight, Sparkles, User } from "lucide-react"
 
 export const Route = createFileRoute('/student/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const { user, loading, logout } = useAuth()
+  const { loading, user, studentProfile } = useAuth()
+
+  const recentRewards = [
+    { id: "r1", title: "Perfect Attendance", coins: 100, group: "Math Olympiad" },
+    { id: "r2", title: "Quiz Champion", coins: 50, group: "Physics Lab" },
+  ]
 
   if (loading) {
     return (
@@ -20,61 +31,118 @@ function RouteComponent() {
   }
 
   return (
-    <div className="p-6 space-y-4">
-      <h1 className="text-2xl font-bold">Student Dashboard</h1>
-
-      <Button onClick={() => logout()}>
-        Log Out
-      </Button>
-
-      {user ? (
-        <>
-          <div className="border rounded-lg p-4 bg-card">
-            <h2 className="text-lg font-semibold mb-4">User Information</h2>
-            <div className="grid gap-3">
-              <div>
-                <span className="font-medium text-sm">ID:</span>
-                <p className="text-sm text-muted-foreground">{user.id}</p>
-              </div>
-              <div>
-                <span className="font-medium text-sm">Telegram ID:</span>
-                <p className="text-sm text-muted-foreground">{user.telegram_id}</p>
-              </div>
-              <div>
-                <span className="font-medium text-sm">First Name:</span>
-                <p className="text-sm text-muted-foreground">{user.first_name}</p>
-              </div>
-              <div>
-                <span className="font-medium text-sm">Last Name:</span>
-                <p className="text-sm text-muted-foreground">{user.last_name || 'N/A'}</p>
-              </div>
-              <div>
-                <span className="font-medium text-sm">Username:</span>
-                <p className="text-sm text-muted-foreground">@{user.username || 'N/A'}</p>
-              </div>
-              <div>
-                <span className="font-medium text-sm">Language:</span>
-                <p className="text-sm text-muted-foreground">{user.language_code || 'N/A'}</p>
-              </div>
-              <div>
-                <span className="font-medium text-sm">Role:</span>
-                <p className="text-sm text-muted-foreground font-semibold uppercase">{user.role}</p>
-              </div>
+    <div className="min-h-screen bg-background p-1">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="max-w mx-auto space-y-3"
+      >
+        {/* Greeting Header */}
+        <Card className="rounded-2xl shadow-sm">
+          <CardContent className="p-4 flex items-center gap-3">
+            <Avatar className="h-12 w-12">
+              <AvatarImage src={studentProfile?.avatar_url} />
+              <AvatarFallback>
+                <User className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <p className="text-sm text-muted-foreground">Welcome back,</p>
+              <p className="font-semibold text-lg leading-none">{user?.first_name} 👋</p>
             </div>
-          </div>
+            <Button size="icon" variant="ghost" className="rounded-full">
+              <Bell className="h-5 w-5" />
+            </Button>
+          </CardContent>
+        </Card>
 
-          <div className="border rounded-lg p-4 bg-card">
-            <h2 className="text-lg font-semibold mb-4">User Data (JSON)</h2>
-            <pre className="text-xs bg-muted p-3 rounded overflow-auto max-h-60">
-              {JSON.stringify(user, null, 2)}
-            </pre>
-          </div>
-        </>
-      ) : (
-        <div className="border rounded-lg p-4 bg-card">
-          <p className="text-muted-foreground">No user data available. Please log in.</p>
+        {/* Balance Highlight */}
+        <Card className="rounded-2xl shadow-sm bg-primary/5">
+          <CardContent className="p-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Coins className="h-5 w-5 text-primary" />
+                <p className="font-medium">Your Coin Balance</p>
+              </div>
+              <Badge className="gap-1">
+                <Sparkles className="h-3 w-3" />
+                Rewards
+              </Badge>
+            </div>
+            <p className="text-3xl font-bold">{studentProfile?.coin_balance}</p>
+            <p className="text-sm text-muted-foreground">
+              Total earned: {studentProfile?.total_coins_earned}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 gap-3">
+          <Card className="rounded-2xl shadow-sm">
+            <CardContent className="p-4 space-y-1">
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm">Groups</p>
+              </div>
+              <p className="text-xl font-semibold">0</p>
+            </CardContent>
+          </Card>
+          <Card className="rounded-2xl shadow-sm">
+            <CardContent className="p-4 space-y-1">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm">Achievements</p>
+              </div>
+              <p className="text-xl font-semibold">{recentRewards.length}</p>
+            </CardContent>
+          </Card>
         </div>
-      )}
+
+        {/* Quick Actions */}
+        <Card className="rounded-2xl shadow-sm">
+          <CardContent className="p-4 space-y-3">
+            <p className="font-medium">Quick Actions</p>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="secondary" className="rounded-xl gap-2">
+                <Gift className="h-4 w-4" />
+                Rewards
+              </Button>
+              <Button variant="secondary" className="rounded-xl gap-2">
+                <Users className="h-4 w-4" />
+                Groups
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Rewards */}
+        <Card className="rounded-2xl shadow-sm">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="font-medium">Recent Rewards</p>
+              <Button size="sm" variant="ghost" className="gap-1">
+                See all <ArrowRight className="h-3 w-3" />
+              </Button>
+            </div>
+            <Separator />
+            <div className="space-y-3">
+              {recentRewards.map((r) => (
+                <div key={r.id} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium leading-none">{r.title}</p>
+                    <p className="text-xs text-muted-foreground">{r.group}</p>
+                  </div>
+                  <div className="flex items-center gap-1 font-semibold">
+                    +{r.coins}
+                    <Coins className="h-4 w-4 text-primary" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   )
 }

@@ -62,10 +62,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   useEffect(() => {
     const storedToken = localStorage.getItem('authToken');
     const storedUser = localStorage.getItem('user');
+    const storedStudentProfile = localStorage.getItem('studentProfile');
+    const storedAdminProfile = localStorage.getItem('adminProfile');
 
     if (storedToken && storedUser) {
       setToken(storedToken);
       setUser(JSON.parse(storedUser));
+      if (storedStudentProfile) {
+        setStudentProfile(JSON.parse(storedStudentProfile));
+      }
+      if (storedAdminProfile) {
+        setAdminProfile(JSON.parse(storedAdminProfile));
+      }
     }
     setLoading(false);
   }, []);
@@ -75,6 +83,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setToken(null);
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('studentProfile');
+    localStorage.removeItem('adminProfile');
     if (logoutTimer.current) {
       clearTimeout(logoutTimer.current);
       logoutTimer.current = null;

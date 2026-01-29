@@ -18,7 +18,7 @@ const navItems = {
         {
             title: "Home",
             icon: Home,
-            url: "/student/main"
+            url: "/student"
         },
         {
             title: "Marketplace",

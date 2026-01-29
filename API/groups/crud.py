@@ -80,10 +80,11 @@ def get_inactive_groups(db: Session):
             detail=str(e),
         )
     
-def get_user_groups(db: Session):
+def get_user_groups(user_id: uuid.UUID, db: Session):
     try:
         return db.query(m.Groups).filter(
-            m.Groups.is_active == True and m.Groups
+            m.Groups.is_active.is_(True),
+            m.Groups.group_memberships.any(m.GroupMemberships.user_id == user_id),
         ).all()
     except HTTPException:
         raise

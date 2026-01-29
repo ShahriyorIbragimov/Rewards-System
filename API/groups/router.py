@@ -82,8 +82,8 @@ def delete_member(id: uuid.UUID, db: Session = Depends(getDB), current_user: um.
         member = c.delete_member(db=db, id=id)
         return member
 
-@router.get("/list-active", response_model=List[s.GroupOut])
-def list_active_groups(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
-    if isWho(current_user, um.Role.admin):
-        groups = c.get_active_groups(db)
+@router.get("/list-user", response_model=List[s.GroupOut])
+def list_user_groups(db: Session = Depends(getDB), current_user: um.Users = Depends(get_current_user)):
+    if isWho(current_user, um.Role.student):
+        groups = c.get_user_groups(db=db, user_id=current_user.id)
         return groups
