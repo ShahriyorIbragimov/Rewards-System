@@ -5,6 +5,13 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Coins, Search, ShoppingCart, Star } from "lucide-react"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
 
 export const Route = createFileRoute('/student/marketplace/')({
   component: RouteComponent,
@@ -45,12 +52,12 @@ function RouteComponent() {
   ]
 
   return (
-    <div className="min-h-screen bg-background p-3">
+    <div className="min-h-screen bg-background p-1">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="max-w-md mx-auto space-y-3"
+        className="max-w mx-auto space-y-3"
       >
         {/* Header */}
         <Card className="rounded-2xl shadow-sm">
@@ -68,40 +75,47 @@ function RouteComponent() {
           </CardContent>
         </Card>
 
-        {/* Featured */}
         <div className="space-y-2">
           <p className="text-sm font-medium px-1">Featured</p>
           <div className="flex gap-3 overflow-x-auto pb-2">
-            {products
-              .filter((p) => p.featured)
-              .map((p) => (
-                <motion.div key={p.id} whileHover={{ scale: 1.02 }}>
-                  <Card className="w-48 shrink-0 rounded-2xl shadow-sm">
-                    <CardContent className="p-3 space-y-2">
-                      <img
-                        src={p.image}
-                        alt={p.name}
-                        className="h-28 w-full object-cover rounded-xl"
-                      />
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 text-yellow-500" />
-                          <p className="text-sm font-medium leading-none">{p.name}</p>
-                        </div>
-                        <p className="text-xs text-muted-foreground line-clamp-2">
-                          {p.description}
-                        </p>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="flex items-center gap-1 font-semibold">
-                          {p.price} <Coins className="h-4 w-4 text-primary" />
-                        </span>
-                        <Button size="sm" className="rounded-xl">Buy</Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+            <Carousel>
+              <CarouselContent>
+                {products
+                  .filter((p) => p.featured)
+                  .map((p) => (
+                    <CarouselItem>
+                      <motion.div key={p.id} whileHover={{ scale: 1.02 }}>
+                        <Card className="shrink-0 rounded-2xl shadow-sm">
+                          <CardContent className="p-3 space-y-2 w-full">
+                            <img
+                              src={p.image}
+                              alt={p.name}
+                              className="w-full aspect-square object-cover rounded-xl"
+                            />
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-1">
+                                <Star className="h-3 w-3 text-yellow-500" />
+                                <p className="text-sm font-medium leading-none">{p.name}</p>
+                              </div>
+                              <p className="text-xs text-muted-foreground line-clamp-2">
+                                {p.description}
+                              </p>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span className="flex items-center gap-1 font-semibold">
+                                {p.price} <Coins className="h-4 w-4 text-primary" />
+                              </span>
+                              <Button size="sm" className="rounded-xl">Buy</Button>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </motion.div>
+                    </CarouselItem>
+                  ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         </div>
 
@@ -114,7 +128,7 @@ function RouteComponent() {
                   <img
                     src={p.image}
                     alt={p.name}
-                    className="h-24 w-full object-cover rounded-xl"
+                    className="w-full aspect-square object-cover rounded-xl"
                   />
                   <div className="space-y-1">
                     <p className="text-sm font-medium leading-none">{p.name}</p>
