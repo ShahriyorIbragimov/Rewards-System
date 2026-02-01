@@ -21,7 +21,6 @@ async def main() -> None:
     storage = MemoryStorage()
     dp = Dispatcher(storage=storage)
 
-    # Define handlers
     @dp.message(Command("start"))
     async def command_start_handler(message: types.Message) -> None:
         keyboard = InlineKeyboardMarkup(

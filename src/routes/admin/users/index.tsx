@@ -21,10 +21,14 @@ type User = {
   id: string
   telegram_id: number
   first_name: string
-  last_name?: string | null
-  username?: string | null
+  last_name: string | null
+  username: string | null
+  language_code: string
+  allows_write_to_pm: boolean
+  photo_url: string | null
   role: 'admin' | 'teacher' | 'student'
-  photo_url?: string | null
+  created_at: string
+  updated_at: string
 }
 
 function RouteComponent() {

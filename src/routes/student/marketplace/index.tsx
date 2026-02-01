@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { motion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -9,47 +10,37 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+  type CarouselApi,
 } from "@/components/ui/carousel"
+import { type Product } from "@/types/product"
 
 export const Route = createFileRoute('/student/marketplace/')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  const products = [
-    {
-      id: "p1",
-      name: "School Hoodie",
-      description: "Warm branded hoodie for students",
-      price: 350,
-      stock: 12,
-      image: "https://picsum.photos/200?1",
-      category: "Merch",
-      featured: true,
-    },
-    {
-      id: "p2",
-      name: "Notebook Set",
-      description: "3 premium notebooks",
-      price: 120,
-      stock: 25,
-      image: "https://picsum.photos/200?2",
-      category: "Stationery",
-      featured: false,
-    },
-    {
-      id: "p3",
-      name: "Cafeteria Voucher",
-      description: "Free meal coupon",
-      price: 200,
-      stock: 8,
-      image: "https://picsum.photos/200?3",
-      category: "Vouchers",
-      featured: true,
-    },
-  ]
+  const [featuredCarouselApi, setFeaturedCarouselApi] = useState<CarouselApi | null>(null)
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    async function getProducts() {
+      const response = await fetch('/api/products/list-active')
+      if (!response.ok) {
+        throw new Error('Failed to fetch products')
+      }
+      const data = await response.json() as Product[]
+      setProducts(data)
+    }
+    void getProducts()
+  }, [])
+
+  useEffect(() => {
+    if (!featuredCarouselApi) return
+    const interval = setInterval(() => {
+      featuredCarouselApi.scrollNext()
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [featuredCarouselApi])
 
   return (
     <div className="min-h-screen bg-background p-1">
@@ -59,7 +50,6 @@ function RouteComponent() {
         transition={{ duration: 0.3 }}
         className="max-w mx-auto space-y-3"
       >
-        {/* Header */}
         <Card className="rounded-2xl shadow-sm">
           <CardContent className="p-4 space-y-3">
             <div className="flex items-center justify-between">
@@ -77,66 +67,65 @@ function RouteComponent() {
 
         <div className="space-y-2">
           <p className="text-sm font-medium px-1">Featured</p>
-          <div className="flex gap-3 overflow-x-auto pb-2">
-            <Carousel>
-              <CarouselContent>
+          <div className="w-full pb-2">
+            <Carousel
+              className="w-full"
+              opts={{ loop: true }}
+              setApi={setFeaturedCarouselApi}
+            >
+              <CarouselContent className="ml-0">
                 {products
-                  .filter((p) => p.featured)
+                  .filter((p) => p.is_featured)
                   .map((p) => (
-                    <CarouselItem>
-                      <motion.div key={p.id} whileHover={{ scale: 1.02 }}>
-                        <Card className="shrink-0 rounded-2xl shadow-sm">
-                          <CardContent className="p-3 space-y-2 w-full">
-                            <img
-                              src={p.image}
-                              alt={p.name}
-                              className="w-full aspect-square object-cover rounded-xl"
-                            />
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-1">
-                                <Star className="h-3 w-3 text-yellow-500" />
-                                <p className="text-sm font-medium leading-none">{p.name}</p>
-                              </div>
-                              <p className="text-xs text-muted-foreground line-clamp-2">
-                                {p.description}
-                              </p>
+                    <CarouselItem key={p.id} className="pl-0 w-full basis-full">
+                      <Card className="rounded-2xl shadow-sm w-full h-100 flex flex-col overflow-hidden">
+                        <CardContent className="p-3 flex flex-col flex-1 min-h-0 w-full">
+                          <img
+                            src={p.image_url}
+                            alt={p.name}
+                            className="w-full h-64 object-cover rounded-xl shrink-0"
+                          />
+                          <div className="space-y-1 mt-2 flex-1 min-h-0">
+                            <div className="flex items-center gap-1">
+                              <Star className="h-3 w-3 text-yellow-500 shrink-0" />
+                              <p className="text-sm font-medium leading-none truncate">{p.name}</p>
                             </div>
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-1 font-semibold">
-                                {p.price} <Coins className="h-4 w-4 text-primary" />
-                              </span>
-                              <Button size="sm" className="rounded-xl">Buy</Button>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </motion.div>
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {p.description}
+                            </p>
+                          </div>
+                          <div className="flex items-center justify-between mt-2 shrink-0">
+                            <span className="flex items-center gap-1 font-semibold">
+                              {p.price} <Coins className="h-4 w-4 text-primary" />
+                            </span>
+                            <Button size="sm" className="rounded-xl">Buy</Button>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </CarouselItem>
                   ))}
               </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
             </Carousel>
           </div>
         </div>
 
-        {/* All Products */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
           {products.map((p) => (
-            <motion.div key={p.id} whileHover={{ scale: 1.02 }}>
-              <Card className="rounded-2xl shadow-sm">
-                <CardContent className="p-3 space-y-2">
+            <motion.div key={p.id} whileHover={{ scale: 1.02 }} className="h-full min-h-0">
+              <Card className="rounded-2xl shadow-sm h-full flex flex-col overflow-hidden">
+                <CardContent className="p-3 flex flex-col flex-1 min-h-0">
                   <img
-                    src={p.image}
+                    src={p.image_url}
                     alt={p.name}
-                    className="w-full aspect-square object-cover rounded-xl"
+                    className="w-full aspect-square object-cover rounded-xl shrink-0"
                   />
-                  <div className="space-y-1">
+                  <div className="space-y-1 flex-1 min-h-0 mt-2">
                     <p className="text-sm font-medium leading-none">{p.name}</p>
                     <p className="text-xs text-muted-foreground line-clamp-2">
                       {p.description}
                     </p>
                   </div>
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between mt-2 shrink-0">
                     <span className="flex items-center gap-1 font-semibold text-sm">
                       {p.price} <Coins className="h-4 w-4 text-primary" />
                     </span>
@@ -148,8 +137,8 @@ function RouteComponent() {
                       Buy
                     </Button>
                   </div>
-                  {p.stock < 10 && (
-                    <Badge variant="outline" className="text-xs w-fit">
+                  {p.stock_quantity < 10 && p.is_active && (
+                    <Badge variant="outline" className="text-xs w-fit mt-1 shrink-0">
                       Low stock
                     </Badge>
                   )}

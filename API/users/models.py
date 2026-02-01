@@ -4,6 +4,7 @@ from sqlalchemy import String, BigInteger, Enum as SQLEnum, UUID
 import uuid
 from enum import Enum
 from mixins import TimestampMixin
+from typing import Optional
 
 class Role(str, Enum):
     admin = "admin"
@@ -20,11 +21,11 @@ class Users(TimestampMixin, Base):
     )
     telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True)
     first_name: Mapped[str] = mapped_column(String(100))
-    last_name: Mapped[str] = mapped_column(String(100))
-    username: Mapped[str] = mapped_column(String(150))
+    last_name: Mapped[Optional[str]] = mapped_column(String(100))
+    username: Mapped[Optional[str]] = mapped_column(String(150))
     language_code: Mapped[str] = mapped_column(String(3))
     allows_write_to_pm: Mapped[bool] = mapped_column()
-    photo_url: Mapped[str] = mapped_column()
+    photo_url: Mapped[Optional[str]] = mapped_column(String(255))
     role: Mapped[Role] = mapped_column(
         SQLEnum(Role, name="role_enum"),
         default=Role.student,

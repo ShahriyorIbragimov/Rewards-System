@@ -13,6 +13,7 @@ declare global {
                     button_text_color?: string;
                     secondary_bg_color?: string;
                 };
+                openLink?(url: string): void;
                 initData?: string;
                 initDataUnsafe?: {
                     query_id?: string;
