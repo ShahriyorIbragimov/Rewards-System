@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
-import { Coins, Trophy, Users, Gift, Bell, ArrowRight, Sparkles, User } from "lucide-react"
+import { Coins, Trophy, Users, Gift, Bell, BellOff, ArrowRight, Sparkles, User } from "lucide-react"
+import { useState } from 'react'
 
 export const Route = createFileRoute('/student/')({
   component: RouteComponent,
@@ -14,6 +15,7 @@ export const Route = createFileRoute('/student/')({
 
 function RouteComponent() {
   const { loading, user, studentProfile } = useAuth()
+  const [notify, setNotify] = useState<boolean>(true)
 
   const recentRewards = [
     { id: "r1", title: "Perfect Attendance", coins: 100, group: "Math Olympiad" },
@@ -31,14 +33,13 @@ function RouteComponent() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-1">
+    <div className="min-h-screen bg-background">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
         className="max-w mx-auto space-y-3"
       >
-        {/* Greeting Header */}
         <Card className="rounded-2xl shadow-sm">
           <CardContent className="p-4 flex items-center gap-3">
             <Avatar className="h-12 w-12">
@@ -51,13 +52,20 @@ function RouteComponent() {
               <p className="text-sm text-muted-foreground">Welcome back,</p>
               <p className="font-semibold text-lg leading-none">{user?.first_name} 👋</p>
             </div>
-            <Button size="icon" variant="ghost" className="rounded-full">
-              <Bell className="h-5 w-5" />
+            <Button
+              size="icon"
+              variant="ghost"
+              className="rounded-full"
+              onClick={() => setNotify(!notify)}
+            >
+              {notify
+                ? <Bell className="h-5 w-5" />
+                : <BellOff className="h-5 w-5" />
+              }
             </Button>
           </CardContent>
         </Card>
 
-        {/* Balance Highlight */}
         <Card className="rounded-2xl shadow-sm bg-primary/5">
           <CardContent className="p-4 space-y-2">
             <div className="flex items-center justify-between">

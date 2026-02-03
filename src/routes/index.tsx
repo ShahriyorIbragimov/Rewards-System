@@ -19,13 +19,9 @@ type TelegramUser = {
 
 function RouteComponent() {
   const navigate = useNavigate()
-  const { user, token, login, logout } = useAuth()
+  const { user, token, login } = useAuth()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-
-  // useEffect(() => {
-  //   logout()
-  // }, [])
 
   useEffect(() => {
     if (user && token) {

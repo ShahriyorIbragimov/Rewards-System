@@ -13,17 +13,17 @@ export const Route = createFileRoute('/student/profile/')({
 })
 
 function RouteComponent() {
-    const { user, studentProfile } = useAuth()
+    const { user, studentProfile, logout } = useAuth()
 
     return (
-        <div className="min-h-screen bg-background p-1">
+        <div className="min-h-screen bg-background">
             <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
                 className="max-w mx-auto space-y-3"
             >
-                <Card className="rounded-2xl shadow-sm">
+                <Card className="rounded-2xl">
                     <CardContent className="p-4 flex items-center gap-3">
                         <Avatar className="h-14 w-14">
                             <AvatarImage src={studentProfile?.avatar_url} />
@@ -50,7 +50,7 @@ function RouteComponent() {
                     </CardContent>
                 </Card>
 
-                <Card className="rounded-2xl shadow-sm">
+                <Card className="rounded-2xl">
                     <CardContent className="p-4 space-y-3">
                         <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ function RouteComponent() {
                     </CardContent>
                 </Card>
 
-                <Card className="rounded-2xl shadow-sm">
+                <Card className="rounded-2xl">
                     <CardContent className="p-4 space-y-3">
                         <Button variant="secondary" className="w-full rounded-xl gap-2">
                             <Edit3 className="h-4 w-4" />
@@ -81,6 +81,13 @@ function RouteComponent() {
                         </Button>
                         <Button variant="outline" className="w-full rounded-xl">
                             View Transactions
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="w-full rounded-xl"
+                            onClick={() => logout()}
+                        >
+                            Log Out
                         </Button>
                     </CardContent>
                 </Card>

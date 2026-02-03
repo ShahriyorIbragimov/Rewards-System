@@ -46,7 +46,7 @@ function RouteComponent() {
     )
 
     return (
-        <div className="min-h-screen bg-background p-1">
+        <div className="min-h-screen bg-background">
             <motion.div
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -43,7 +43,7 @@ function RouteComponent() {
   }, [featuredCarouselApi])
 
   return (
-    <div className="min-h-screen bg-background p-1">
+    <div className="min-h-screen bg-background">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -109,44 +109,42 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 items-stretch">
-          {products.map((p) => (
-            <motion.div key={p.id} whileHover={{ scale: 1.02 }} className="h-full min-h-0">
-              <Card className="rounded-2xl shadow-sm h-full flex flex-col overflow-hidden">
-                <CardContent className="p-3 flex flex-col flex-1 min-h-0">
-                  <img
-                    src={p.image_url}
-                    alt={p.name}
-                    className="w-full aspect-square object-cover rounded-xl shrink-0"
-                  />
-                  <div className="space-y-1 flex-1 min-h-0 mt-2">
-                    <p className="text-sm font-medium leading-none">{p.name}</p>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {p.description}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between mt-2 shrink-0">
-                    <span className="flex items-center gap-1 font-semibold text-sm">
-                      {p.price} <Coins className="h-4 w-4 text-primary" />
-                    </span>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="rounded-xl"
-                    >
-                      Buy
-                    </Button>
-                  </div>
-                  {p.stock_quantity < 10 && p.is_active && (
-                    <Badge variant="outline" className="text-xs w-fit mt-1 shrink-0">
-                      Low stock
-                    </Badge>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        {products.map((p) => (
+          <motion.div key={p.id} whileHover={{ scale: 1.02 }} className="h-full min-h-0">
+            <Card className="rounded-2xl shadow-sm h-full flex flex-col overflow-hidden">
+              <CardContent className="p-3 flex flex-col flex-1 min-h-0">
+                <img
+                  src={p.image_url}
+                  alt={p.name}
+                  className="w-full aspect-square object-cover rounded-xl shrink-0"
+                />
+                <div className="space-y-1 flex-1 min-h-0 mt-2">
+                  <p className="text-sm font-medium leading-none">{p.name}</p>
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {p.description}
+                  </p>
+                </div>
+                <div className="flex items-center justify-between mt-2 shrink-0">
+                  <span className="flex items-center gap-1 font-semibold text-sm">
+                    {p.price} <Coins className="h-4 w-4 text-primary" />
+                  </span>
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    className="rounded-xl"
+                  >
+                    Buy
+                  </Button>
+                </div>
+                {p.stock_quantity < 10 && p.is_active && (
+                  <Badge variant="outline" className="text-xs w-fit mt-1 shrink-0">
+                    Low stock
+                  </Badge>
+                )}
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </motion.div>
     </div>
   )

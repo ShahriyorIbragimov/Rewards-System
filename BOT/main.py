@@ -1,6 +1,6 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters import Command
-from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import WebAppInfo, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.fsm.storage.memory import MemoryStorage
 from dotenv import load_dotenv
 import asyncio
@@ -23,7 +23,18 @@ async def main() -> None:
 
     @dp.message(Command("start"))
     async def command_start_handler(message: types.Message) -> None:
-        keyboard = InlineKeyboardMarkup(
+        keyboard = ReplyKeyboardMarkup(
+            keyboard=[
+                [
+                    KeyboardButton(
+                        text="👛 View Balance"
+                    )
+                ]
+            ],
+            resize_keyboard=True
+        )
+
+        inline_keyboard = InlineKeyboardMarkup(
             inline_keyboard=[
                 [
                     InlineKeyboardButton(
@@ -33,10 +44,15 @@ async def main() -> None:
                 ]
             ]
         )
+
         await message.answer(
-            "Welcome to Rewards System! 🎉\n\n"
-            "Press the button to continue:",
+            text="Welcome to Rewards System! 🎉",
             reply_markup=keyboard
+        )
+        
+        await message.answer(
+            "Press the button to continue:",
+            reply_markup=inline_keyboard
         )
 
     @dp.message(Command("help"))

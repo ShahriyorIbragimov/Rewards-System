@@ -12,6 +12,20 @@ import {
 import { useAuth } from '@/context/AuthContext'
 import { useIsMobile } from '@/hooks/use-mobile'
 import { useEffect, useState, useMemo } from 'react'
+import { Plus } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { Field, FieldGroup } from "@/components/ui/field"
+import { Label } from "@/components/ui/label"
 
 export const Route = createFileRoute('/admin/users/')({
   component: RouteComponent,
@@ -37,6 +51,17 @@ function RouteComponent() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const isMobile = useIsMobile()
+
+  const [formData, setFormData] = useState({
+    telegram_id: "",
+    first_name: "",
+    last_name: "",
+    username: "",
+    language_code: "",
+    allows_write_to_pm: "",
+    photo_url: "",
+    role: "student"
+  })
 
   const [query, setQuery] = useState('')
   const [roleFilter, setRoleFilter] = useState<'all' | 'teacher' | 'student'>('all')
@@ -107,10 +132,64 @@ function RouteComponent() {
     return sorted
   }, [users, query, roleFilter, searchKey])
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { id, value } = e.currentTarget
+    setFormData((prev) => ({
+      ...prev,
+      [id]: value,
+    }))
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setError("")
+
+    if (formData.username.length < 4 && formData.username.length > 0) {
+      setError("Username must be at least 5 characters long")
+      return
+    }
+
+    setLoading(true)
+
+    try {
+      const loginResponse = await fetch("/api/users/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          telegram_id: formData.telegram_id,
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          username: formData.username,
+          language_code: formData.language_code,
+          allows_write_to_pm: formData.allows_write_to_pm,
+          photo_url: formData.photo_url,
+          role: formData.role
+        }),
+      })
+
+      if (!loginResponse.ok) {
+        const errorData = await loginResponse.json().catch(() => ({}))
+        throw new Error(errorData.detail || "Failed to login. Please sign in manually.")
+      }
+
+
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "An error occurred"
+      setError(message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
       <div className='w-full flex flex-col gap-2 mb-4'>
-        <div className={ !isMobile ? "w-full flex gap-2" : "w-full flex flex-col gap-2"}>
+        <div className="w-full">
           <Input
             className='w-full'
             placeholder={
@@ -125,8 +204,12 @@ function RouteComponent() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v as typeof roleFilter)}>
-            <SelectTrigger className='w-full'>
+        </div>
+        <div className={!isMobile ? "w-full flex gap-2" : "w-full flex flex-col gap-2"}>
+          <Select
+            value={roleFilter}
+            onValueChange={(v) => setRoleFilter(v as typeof roleFilter)}>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Select a role" />
             </SelectTrigger>
             <SelectContent>
@@ -138,7 +221,7 @@ function RouteComponent() {
             </SelectContent>
           </Select>
           <Select value={searchKey} onValueChange={(v) => setSearchKey(v as typeof searchKey)}>
-            <SelectTrigger className='w-full'>
+            <SelectTrigger className="w-full">
               <SelectValue placeholder="Search/Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -150,6 +233,70 @@ function RouteComponent() {
               </SelectGroup>
             </SelectContent>
           </Select>
+          <Dialog>
+            <form onSubmit={handleSubmit}>
+              <DialogTrigger className={isMobile ? "w-full" : ""}>
+                <Button className='w-full'>
+                  <Plus /> Create a new user
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-sm">
+                <DialogHeader>
+                  <DialogTitle>Create user</DialogTitle>
+                  <DialogDescription>
+                    Create a new user here. Click create when you&apos;re
+                    done.
+                  </DialogDescription>
+                </DialogHeader>
+                <FieldGroup>
+                  <Field>
+                    <Label htmlFor="telegram_id">Telegram ID</Label>
+                    <Input id="telegram_id" name="telegram_id" placeholder='optional' />
+                  </Field>
+                  <div className='flex gap-2'>
+                    <Field>
+                      <Label htmlFor="first_name">First Name</Label>
+                      <Input id="first_name" name="first_name" placeholder='Pedro' />
+                    </Field>
+                    <Field>
+                      <Label htmlFor="last_name">Last Name</Label>
+                      <Input id="last_name" name="last_name" defaultValue="Duarte" />
+                    </Field>
+                  </div>
+                  <Field>
+                    <Label htmlFor="username">Username</Label>
+                    <Input id="username" name="username" placeholder="@peduarte" />
+                  </Field>
+                  <div className='flex gap-2'>
+                    <Field>
+                      <Label htmlFor="language_code">Language</Label>
+                      <Input id="language_code" name="language_code" />
+                    </Field>
+                    <Field>
+                      <Label htmlFor="allows_write_to_pm">Allows PM</Label>
+                      <Input id="allows_write_to_pm" name="allows_write_to_pm" />
+                    </Field>
+                  </div>
+                  <div className='flex gap-2'>
+                    <Field>
+                      <Label htmlFor="photo_url">Photo URL</Label>
+                      <Input id="photo_url" name="photo_url" />
+                    </Field>
+                    <Field>
+                      <Label htmlFor="role">Role</Label>
+                      <Input id="role" name="role" />
+                    </Field>
+                  </div>
+                </FieldGroup>
+                <DialogFooter>
+                  <DialogClose>
+                    <Button variant="outline">Cancel</Button>
+                  </DialogClose>
+                  <Button type="submit">Create</Button>
+                </DialogFooter>
+              </DialogContent>
+            </form>
+          </Dialog>
         </div>
       </div>
 

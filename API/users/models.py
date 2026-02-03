@@ -19,12 +19,12 @@ class Users(TimestampMixin, Base):
         primary_key=True, 
         default=uuid.uuid4
     )
-    telegram_id: Mapped[int] = mapped_column(BigInteger, unique=True)
+    telegram_id: Mapped[Optional[int]] = mapped_column(BigInteger, unique=True)
     first_name: Mapped[str] = mapped_column(String(100))
     last_name: Mapped[Optional[str]] = mapped_column(String(100))
     username: Mapped[Optional[str]] = mapped_column(String(150))
-    language_code: Mapped[str] = mapped_column(String(3))
-    allows_write_to_pm: Mapped[bool] = mapped_column()
+    language_code: Mapped[Optional[str]] = mapped_column(String(3))
+    allows_write_to_pm: Mapped[Optional[bool]] = mapped_column()
     photo_url: Mapped[Optional[str]] = mapped_column(String(255))
     role: Mapped[Role] = mapped_column(
         SQLEnum(Role, name="role_enum"),
