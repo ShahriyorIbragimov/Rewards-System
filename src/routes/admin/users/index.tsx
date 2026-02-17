@@ -46,11 +46,11 @@ type User = {
 }
 
 function RouteComponent() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
+  const isMobile = useIsMobile()
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const isMobile = useIsMobile()
 
   const [formData, setFormData] = useState({
     telegram_id: "",
@@ -91,7 +91,7 @@ function RouteComponent() {
     }
 
     fetchUsers()
-  }, [token])
+  }, [])
 
   const filteredUsers = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -142,11 +142,32 @@ function RouteComponent() {
     }))
   }
 
+  const handleLanguageChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      language_code: value,
+    }))
+  }
+
+  const handlePMChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      allows_write_to_pm: value,
+    }))
+  }
+
+  const handleRoleChange = (value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      role: value,
+    }))
+  }
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    setError("")
+    setError(null)
 
-    if (formData.username.length < 4 && formData.username.length > 0) {
+    if (formData.username && formData.username.length < 5) {
       setError("Username must be at least 5 characters long")
       return
     }
@@ -154,29 +175,71 @@ function RouteComponent() {
     setLoading(true)
 
     try {
-      const loginResponse = await fetch("/api/users/create", {
+      const payload: Record<string, any> = {
+        first_name: formData.first_name.trim(),
+        role: formData.role,
+        language_code: formData.language_code,
+      }
+
+      if (formData.telegram_id) {
+        payload.telegram_id = Number(formData.telegram_id)
+      }
+
+      if (formData.last_name.trim()) {
+        payload.last_name = formData.last_name.trim()
+      }
+
+      if (formData.username.trim()) {
+        payload.username = formData.username
+          .trim()
+          .replace(/@+/g, "")
+      }
+
+      if (formData.photo_url.trim()) {
+        payload.photo_url = formData.photo_url.trim()
+      }
+
+      if (formData.allows_write_to_pm !== "") {
+        payload.allows_write_to_pm = formData.allows_write_to_pm === "true"
+      }
+
+      const res = await fetch("/api/users/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          telegram_id: formData.telegram_id,
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          username: formData.username,
-          language_code: formData.language_code,
-          allows_write_to_pm: formData.allows_write_to_pm,
-          photo_url: formData.photo_url,
-          role: formData.role
-        }),
+        body: JSON.stringify(payload),
       })
 
-      if (!loginResponse.ok) {
-        const errorData = await loginResponse.json().catch(() => ({}))
-        throw new Error(errorData.detail || "Failed to login. Please sign in manually.")
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        const message =
+          typeof errorData.detail === "string"
+            ? errorData.detail
+            : JSON.stringify(errorData.detail ?? errorData)
+        throw new Error(message)
       }
 
+      const usersRes = await fetch("/api/users/list-all", {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      const usersData = await usersRes.json()
+      setUsers(usersData || [])
+
+      setFormData({
+        telegram_id: "",
+        first_name: "",
+        last_name: "",
+        username: "",
+        language_code: "",
+        allows_write_to_pm: "",
+        photo_url: "",
+        role: "student",
+      })
 
     } catch (err) {
       const message = err instanceof Error ? err.message : "An error occurred"
@@ -234,68 +297,151 @@ function RouteComponent() {
             </SelectContent>
           </Select>
           <Dialog>
-            <form onSubmit={handleSubmit}>
-              <DialogTrigger className={isMobile ? "w-full" : ""}>
-                <Button className='w-full'>
-                  <Plus /> Create a new user
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-sm">
-                <DialogHeader>
-                  <DialogTitle>Create user</DialogTitle>
-                  <DialogDescription>
-                    Create a new user here. Click create when you&apos;re
-                    done.
-                  </DialogDescription>
-                </DialogHeader>
-                <FieldGroup>
+            <DialogTrigger className={isMobile ? "w-full" : ""}>
+              <Button className='w-full'>
+                <Plus /> Create a new user
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-sm">
+              <DialogHeader>
+                <DialogTitle>Create User</DialogTitle>
+                <DialogDescription>
+                  Create a new user here. Click create when you&apos;re
+                  done.
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit}>
+                <FieldGroup className='mb-6 gap-4'>
                   <Field>
-                    <Label htmlFor="telegram_id">Telegram ID</Label>
-                    <Input id="telegram_id" name="telegram_id" placeholder='optional' />
+                    <Label htmlFor="telegram_id">Telegram ID (Optional)</Label>
+                    <Input
+                      id="telegram_id"
+                      name="telegram_id"
+                      placeholder={String(user?.telegram_id)}
+                      type="number"
+                      autoComplete="off"
+                      value={formData.telegram_id}
+                      onChange={handleInputChange}
+                      disabled={loading} />
                   </Field>
                   <div className='flex gap-2'>
                     <Field>
                       <Label htmlFor="first_name">First Name</Label>
-                      <Input id="first_name" name="first_name" placeholder='Pedro' />
+                      <Input
+                        id="first_name"
+                        name="first_name"
+                        placeholder='Pedro'
+                        autoComplete="off"
+                        value={formData.first_name}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                      />
                     </Field>
                     <Field>
-                      <Label htmlFor="last_name">Last Name</Label>
-                      <Input id="last_name" name="last_name" defaultValue="Duarte" />
+                      <Label htmlFor="last_name">Last Name (Optional)</Label>
+                      <Input
+                        id="last_name"
+                        name="last_name"
+                        placeholder="Duarte"
+                        autoComplete="off"
+                        value={formData.last_name}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                      />
                     </Field>
                   </div>
                   <Field>
-                    <Label htmlFor="username">Username</Label>
-                    <Input id="username" name="username" placeholder="@peduarte" />
+                    <Label htmlFor="username">Username (Optional)</Label>
+                    <Input
+                      id="username"
+                      name="username"
+                      placeholder="@peduarte"
+                      autoComplete="off"
+                      value={formData.username}
+                      onChange={handleInputChange}
+                      disabled={loading}
+                    />
                   </Field>
                   <div className='flex gap-2'>
                     <Field>
                       <Label htmlFor="language_code">Language</Label>
-                      <Input id="language_code" name="language_code" />
+                      <Select
+                        value={formData.language_code} onValueChange={handleLanguageChange}
+                      >
+                        <SelectTrigger disabled={loading}>
+                          <SelectValue placeholder="Language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="en">EN</SelectItem>
+                            <SelectItem value="ru">RU</SelectItem>
+                            <SelectItem value="uz">UZ</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </Field>
                     <Field>
                       <Label htmlFor="allows_write_to_pm">Allows PM</Label>
-                      <Input id="allows_write_to_pm" name="allows_write_to_pm" />
+                      <Select
+                        value={formData.allows_write_to_pm} onValueChange={handlePMChange}
+                      >
+                        <SelectTrigger disabled={loading}>
+                          <SelectValue placeholder="PM Permission" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="true">Yes</SelectItem>
+                            <SelectItem value="false">No</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </Field>
                   </div>
                   <div className='flex gap-2'>
                     <Field>
-                      <Label htmlFor="photo_url">Photo URL</Label>
-                      <Input id="photo_url" name="photo_url" />
+                      <Label htmlFor="photo_url">Photo URL (Optional)</Label>
+                      <Input
+                        id="photo_url"
+                        name="photo_url"
+                        autoComplete="off"
+                        value={formData.photo_url}
+                        onChange={handleInputChange}
+                        disabled={loading}
+                      />
                     </Field>
                     <Field>
                       <Label htmlFor="role">Role</Label>
-                      <Input id="role" name="role" />
+                      <Select
+                        value={formData.role} onValueChange={handleRoleChange}
+                      >
+                        <SelectTrigger disabled={loading}>
+                          <SelectValue placeholder="Role" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="teacher">Teacher</SelectItem>
+                            <SelectItem value="student">Student</SelectItem>
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
                     </Field>
                   </div>
                 </FieldGroup>
                 <DialogFooter>
-                  <DialogClose>
-                    <Button variant="outline">Cancel</Button>
+                  <DialogClose
+                    className={isMobile ? "w-full" : ""}
+                  >
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className={isMobile ? "w-full" : ""}
+                    >Cancel</Button>
                   </DialogClose>
                   <Button type="submit">Create</Button>
                 </DialogFooter>
-              </DialogContent>
-            </form>
+              </form>
+            </DialogContent>
           </Dialog>
         </div>
       </div>
